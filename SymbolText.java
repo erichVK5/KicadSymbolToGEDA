@@ -61,7 +61,9 @@ public class SymbolText extends SymbolElement
   public void constructor(String arg)
   {
     textDescriptor = arg;
-    
+    // herein lies a most peculiar danger, heretofore unimagined, that
+    // the kicadians might perchance elect to have text fields with
+    // spaces within double quote delimited text fields; oh, the horror 
     String[] tokens = arg.split(" ");
     
     //		System.out.print("#The passed string:" + arg + "\n");

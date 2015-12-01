@@ -60,16 +60,20 @@ public class SymbolPolyline extends SymbolElement
   public void constructor(String arg)
   {
     polylineDescriptor = arg;
-    
+    arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
+    for (int index = 0; index < tokens.length; index++) {
+      System.out.println(tokens[index]);
+    }
     
     //		System.out.print("#The passed string:" + arg + "\n");
 
     vertices = Integer.parseInt(tokens[1]);
+    System.out.println("Vertices found: " + vertices);
     lineThickness = Integer.parseInt(tokens[4]);
     for (int vertex = 0; vertex < vertices; vertex++) {
-      xCoords[vertex] = Integer.parseInt(tokens[vertex*2+5]);
-      yCoords[vertex] = Integer.parseInt(tokens[vertex*2+6]);
+      xCoords[vertex] = Long.parseLong(tokens[vertex*2+5]);
+      yCoords[vertex] = Long.parseLong(tokens[vertex*2+6]);
     }
   }
 

@@ -41,11 +41,10 @@ public class KicadSymbolToGEDA
     // particularly if usage is intended via stdin, as these will be the defaults used
     // when generating output files
     String htmlSummaryFileName = "HTMLsummary.html";
-    String kicadModuleFileName = "kicad.mod";
     String kicadSymbolLibName = "kicad.lib";
-    String moduleDescriptionText = " converted kicad module";
+    String moduleDescriptionText = " converted kicad symbol";
     String convertedKicadModulePath = "Converted/";
-    String htmlSummaryPathToConvertedModule = "kicad/footprints/";
+    String htmlSummaryPathToConvertedModule = "kicad/symbols/";
     String tempStringArg = "";
 
     // first, we parse the command line arguments passed to the utility when started
@@ -63,17 +62,17 @@ public class KicadSymbolToGEDA
               {	
                 System.out.println("\t" + args[count]);
               }
-            if (args[count].startsWith("-k") && (count < (args.length - 1)))
-              {
-                count++;
-                kicadModuleFileName = args[count];
-                if (!quietMode)
-                  {
-                    System.out.println("Using " + args[count] +
-                                       " as input file");
-                  }
-              }
-            else if (args[count].startsWith("-l") && (count < (args.length - 1)))
+            //if (args[count].startsWith("-k") && (count < (args.length - 1)))
+            //{
+            //   count++;
+            //  kicadModuleFileName = args[count];
+            //  if (!quietMode)
+            // {
+            //                    System.out.println("Using " + args[count] +
+            //                   " as input file");
+            //  }
+            //}
+            if (args[count].startsWith("-l") && (count < (args.length - 1)))
               {
                 count++;
                 kicadSymbolLibName = args[count];
@@ -169,10 +168,10 @@ public class KicadSymbolToGEDA
       }
 
 
-    // we get rid of the "kicad_modules/" at the front of the converted module filename
-    if (kicadSymbolLibName.startsWith("kicad_modules"))
+    // we get rid of the "kicad_libraries/" at the front of the converted module filename
+    if (kicadSymbolLibName.startsWith("kicad_libraries"))
       {
-        kicadSymbolLibName = kicadSymbolLibName.substring(14);
+        kicadSymbolLibName = kicadSymbolLibName.substring(16);
       }
 
     String[] loadedLibraryStringArray = new String[59999];
@@ -375,9 +374,10 @@ public class KicadSymbolToGEDA
   public static void printHelpScreen()
   {
     System.out.println("\nUsage:\n\n" +
-                       "user@box:~$ java KicadPadDriver " +
+                       "user@box:~$ java KicadSymbolToGEDA " +
                        "-q quietMode " +
-                       "-k foo.mod " +
+                       //                       "-k foo.mod " +
+                       "-l bar.lib " +
                        "-c PrependedAuthorCreditsCommentsLicenceEtc.txt " +
                        "-h HTMLsummaryOfFootprintsOutputFileName.html " +
                        "-d destinationDirectoryPathForConvertedModuleDirectory " +
@@ -388,8 +388,10 @@ public class KicadSymbolToGEDA
                        "\t -q QuietMode\n" +
                        "\t\t Default is not quiet mode," +
                        " with a simple summary of progress provided\n" +
-                       "\t -k kicadmodule.mod\n" +
-                       "\t\t parses legacy & s-file format modules in decimil or mm units\n" +
+                       //                       "\t -k kicadmodule.mod\n" +
+                       //"\t\t parses legacy & s-file format modules in decimil or mm units\n" +
+                       "\t -l kicadlibrary.lib\n" +
+                       "\t\t parses kicad symbols in .lib library files\n" +
                        "\t -h HTMLsummaryOutputFile.html\n" +
                        "\t\t Default is: \"HTMLsummary.html\"\n" + 
                        "\t -c PrependedElementComments.txt\n" +
@@ -403,10 +405,10 @@ public class KicadSymbolToGEDA
                        "\t\t Default is not verbose\n" );
 
     System.out.println("Example:\n\n" +
-                       "user@box~$ java KicadPadDriver -q -k " +
-                       "kicad_modules/vacuum_tubes.mod -h vacuum_tubes.html " +
+                       "user@box~$ java KicadSymbolToGEDA -l " +
+                       "kicad_libraries/SRA-1.lib -h mixer.html " +
                        "-c AuthorCredits/FootprintPreliminaryTextOSHEC.txt " +
-                       "-s \"Vacuum Tube\" -d \"Converted/\"\n\n");
+                       "-s \"RF Mixer\" -d \"Converted/\"\n\n");
   }
 
 }

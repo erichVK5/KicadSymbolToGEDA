@@ -51,7 +51,7 @@ public class Symbol
   int lineCount = 0;
 
   int pinCount = 0;
-  int drawSegmentCount = 0;
+  int drawPolylineCount = 0;
   int drawArcCount = 0;
   int drawCircleCount = 0;
   int textDescriptorCount = 0;
@@ -153,6 +153,13 @@ public class Symbol
                     symbolElements[symFeatureCount].constructor(trimmedString);
                     symFeatureCount++;
                     drawArcCount++;
+                  }
+                else if (tokens[0].startsWith("P"))
+                  {
+                    symbolElements[symFeatureCount] = new SymbolPolyline();
+                    symbolElements[symFeatureCount].constructor(trimmedString);
+                    symFeatureCount++;
+                    drawPolylineCount++;
                   }
                 else if (tokens[0].startsWith("X"))
                   {  // we have identified a pin definition in the symbol
