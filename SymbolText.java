@@ -68,20 +68,15 @@ public class SymbolText extends SymbolElement
     int secondQuotes = 0;
     firstQuotes = arg.indexOf('"');
     secondQuotes = arg.indexOf('"',firstQuotes+1);
+    // so, we extract the text field, and then...
     textField = arg.substring(firstQuotes+1,secondQuotes);
-    System.out.println("The extracted textField is: " + textField);
-    textField = textField.replaceAll(" ","_");
-    System.out.println("The textField is now: " + textField);
-    arg = arg.substring(0,firstQuotes) + textField + arg.substring(secondQuotes+1);
+    // ...we put an underscore in to avoid falling foul of the .split(" ") method
+    arg = arg.substring(0,firstQuotes) + textField.replaceAll(" ","_") + arg.substring(secondQuotes+1);
     arg = arg.replaceAll("  "," ");
-    System.out.println("The arg for the text descriptor is now: " + arg);
     String[] tokens = arg.split(" ");
-    //    arg = arg.replaceAll("  "," "); <- this may mess up multipart text fields 
-    
-    //		System.out.print("#The passed string:" + arg + "\n");
-    
+    // and any underscores added to the text field remain untouched by .split(" ")
+        
     if (tokens[0].startsWith("F0")) {
-      // isRefDes = true;
       if (tokens[1].charAt(0) == '"') {
         tokens[1] = tokens[1].substring(1);
       }
@@ -90,7 +85,9 @@ public class SymbolText extends SymbolElement
       }
       textField = "refdes=" + tokens[1] + "?";  // we add newline in toString method 
     } else if (tokens[0].startsWith("F1")) {
-      // isDeviceDes = true;
+      if (tokens[1].equals(textField.replaceAll(" ","_"))) { // we now get rid of the underscore
+        tokens[1] = textField; // by substituting the previously stored text field back into tokens[1]
+      }
       if (tokens[1].charAt(0) == '"') {
         tokens[1] = tokens[1].substring(1);
       }
