@@ -170,18 +170,22 @@ public class Symbol
                     symFeatureCount++;
                     pinCount++;
                   }
-                
-                if (symFeatureCount > 0) {
+
+                // we now figure out the maximum negative X and negative Y
+                // extents of the kicad symbol, so that these values can
+                // be used as offsets when the gschem symbol is generated
+                // so that it displays conveniently in the RUQ of the
+                // X-Y plane in gschem's display window
+                if (symFeatureCount > 0) { // i.e. at least one has been found so far
                   if (symbolElements[symFeatureCount-1].minXCoord() < xTranslate) {
                     xTranslate = symbolElements[symFeatureCount-1].minXCoord();
                   }
                   if (symbolElements[symFeatureCount-1].minYCoord() < yTranslate) {
                     yTranslate = symbolElements[symFeatureCount-1].minYCoord();
                   }
+
                 }
-
-              }
-
+              }  
           }
 
       }
@@ -219,21 +223,5 @@ public class Symbol
   {
     return reconstructedKicadSymbolAsString;
   }
-
-  private long convertToNanometres(float rawValue, boolean metricSystem)
-  {
-    if (metricSystem) // metricSystem = units mm
-      {
-        return (long)(1000000 * rawValue);
-        // multiply mm by 1000000 to turn into nm
-      }
-    else
-      {
-        return (long)(2540 * rawValue);
-        // multiply 0.1 mil units by 2540 to turn into nm
-      }
-  }
-
-
 
 }
