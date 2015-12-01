@@ -51,10 +51,14 @@ public class SymbolPin extends SymbolElement
   
   String pinName = "";
   int pinNumber = 0;
+  String pinDesc = "";
   long xCoord1 = 0;
   long yCoord1 = 0;
   long xCoord2 = 0;
   long yCoord2 = 0;
+  long pinNumberX = 0;
+  long pinNumberY = 0;
+  int pinNumberOrientation = 0; // degrees rotation from +ve x-axis
   long pinLength = 0;
   String pinDirection = "";
   int pinType = 0; // 0 = normal, and 1 = bus/unused
@@ -73,22 +77,33 @@ public class SymbolPin extends SymbolElement
 
     pinName = tokens[1];
     pinNumber = Integer.parseInt(tokens[2]);
+    pinDesc = tokens[2];
     xCoord1 = Integer.parseInt(tokens[3]);
     yCoord1 = Integer.parseInt(tokens[4]);
     pinLength = Integer.parseInt(tokens[5]);
     pinDirection = tokens[6];
     if (pinDirection.startsWith("R")) {
       xCoord2 = xCoord1 + pinLength;
+      pinNumberX = (xCoord1 + xCoord2)/2;
       yCoord2 = yCoord1;
+      pinNumberY = yCoord1;
     } else if (pinDirection.startsWith("L")) {
       xCoord2 = xCoord1 - pinLength;
-      yCoord2 = yCoord1;      
+      pinNumberX = (xCoord1 + xCoord2)/2;
+      yCoord2 = yCoord1;
+      pinNumberY = yCoord1;
     } else if (pinDirection.startsWith("U")) {
       xCoord2 = xCoord1;
+      pinNumberX = xCoord1;
       yCoord2 = yCoord1 + pinLength;
+      pinNumberY = (yCoord1 + yCoord2)/2;
+      pinNumberOrientation = 90; // degrees from +ve x-axis
     } else if (pinDirection.startsWith("D")) {
       xCoord2 = xCoord1;
+      pinNumberX = xCoord1;
       yCoord2 = yCoord1 - pinLength;      
+      pinNumberY = (yCoord1 + yCoord2)/2;
+      pinNumberOrientation = 90; // degrees from +ve x-axis
     } 
       
   }
@@ -102,11 +117,16 @@ public class SymbolPin extends SymbolElement
             + yCoord2 + " "
             + colorIndex + " "
             + pinType + " "
-            + activeEnd); // one implies (xCoord1, yCoord1)
-    //            + "\n"); 
+            + activeEnd  // one implies (xCoord1, yCoord1)
+            + "\n{\n" 
+            + attributeField(pinDesc, pinNumberX, pinNumberY, pinNumberOrientation) 
+            + "\n}");
     // it is here that the pin name could be added as an attribute
     // in curly braces {\nT x x x x x\npinnumber=3\n}" etc..
   }
-  
+
+  private String attributeField(String pinDesc, long X, long Y, int orientation )  {
+    return ("T " + X + " " + Y + " 5 8 1 1 " + orientation + " 3 1\npinnumber=" + pinDesc);
+  }
 
 }

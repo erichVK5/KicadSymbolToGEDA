@@ -64,7 +64,19 @@ public class SymbolText extends SymbolElement
     // herein lies a most peculiar danger, heretofore unimagined, that
     // the kicadians might perchance elect to have text fields with
     // spaces within double quote delimited text fields; oh, the horror 
+    int firstQuotes = 0;
+    int secondQuotes = 0;
+    firstQuotes = arg.indexOf('"');
+    secondQuotes = arg.indexOf('"',firstQuotes+1);
+    textField = arg.substring(firstQuotes+1,secondQuotes);
+    System.out.println("The extracted textField is: " + textField);
+    textField = textField.replaceAll(" ","_");
+    System.out.println("The textField is now: " + textField);
+    arg = arg.substring(0,firstQuotes) + textField + arg.substring(secondQuotes+1);
+    arg = arg.replaceAll("  "," ");
+    System.out.println("The arg for the text descriptor is now: " + arg);
     String[] tokens = arg.split(" ");
+    //    arg = arg.replaceAll("  "," "); <- this may mess up multipart text fields 
     
     //		System.out.print("#The passed string:" + arg + "\n");
     
