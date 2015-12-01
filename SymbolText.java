@@ -104,15 +104,23 @@ public class SymbolText extends SymbolElement
     textSize = Integer.parseInt(tokens[4]);
   }
 
-  public String toString() {
+  public long minXCoord() {
+    return xCoord;
+  }
+
+  public long minYCoord() {
+    return yCoord;
+  }
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     int visibility = 1;
     int textAngle = 0;
     int textAlignment = 0;
     int numLines = 1;
     return ("T "
-            + xCoord + " " 
-            + yCoord + " " 
+            + (xCoord + xOffset) + " " 
+            + (yCoord + yOffset) + " " 
             + colorIndex + " "
             + defaultTextSize + " "
             + "1 " // visibility on = 1

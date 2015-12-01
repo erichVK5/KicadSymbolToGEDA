@@ -80,11 +80,19 @@ public class SymbolArc extends SymbolElement
     } // could support more fill types here, but, meh...
   }
 
-  public String toString() {
+  public long minXCoord() {
+    return (xCoord - radius);
+  }
+
+  public long minYCoord() {
+    return (yCoord - radius);
+  }
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     return ("A "
-            + xCoord + " " 
-            + yCoord + " " 
+            + (xCoord + xOffset) + " " 
+            + (yCoord + yOffset) + " " 
             + radius + " "
             + startAngle + " " // to do, check direction of swept angle in kicad vs geda
             + (endAngle - startAngle) + " " // convert to swept angle 

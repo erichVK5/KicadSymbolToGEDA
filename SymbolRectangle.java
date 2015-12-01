@@ -80,11 +80,28 @@ public class SymbolRectangle extends SymbolElement
     } // could support more fill types here, but, meh...
   }
 
-  public String toString() {
+
+  public long minXCoord() {
+    if (xCoordOne < xCoordTwo) {
+      return xCoordOne;
+    } else {
+      return xCoordTwo;
+    }
+  }
+
+  public long minYCoord() {
+    if (yCoordOne < yCoordTwo) {
+      return yCoordOne;
+    } else {
+      return yCoordTwo;
+    }
+  }
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     return ("B "
-            + xCoordOne + " "
-            + yCoordOne + " " 
+            + (xCoordOne + xOffset) + " "
+            + (yCoordOne + yOffset) + " " 
             + (xCoordTwo - xCoordOne) + " " + (yCoordTwo - yCoordOne) + " "
             + colorIndex + " "
             + lineThickness + " "

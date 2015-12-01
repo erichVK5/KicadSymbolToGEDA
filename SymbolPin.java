@@ -121,20 +121,36 @@ public class SymbolPin extends SymbolElement
       
   }
 
-  public String toString() {
+  public long minXCoord() {
+    if (xCoord1 < xCoord2) {
+      return xCoord1;
+    } else {
+      return xCoord2;
+    }
+  }
+
+  public long minYCoord() {
+    if (yCoord1 < yCoord2) {
+      return yCoord1;
+    } else {
+      return yCoord2;
+    }
+  }
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     return ("P "
-            + xCoord1 + " "
-            + yCoord1 + " " 
-            + xCoord2 + " "
-            + yCoord2 + " "
+            + (xCoord1 + xOffset) + " "
+            + (yCoord1 + yOffset) + " " 
+            + (xCoord2 + xOffset) + " "
+            + (yCoord2 + yOffset)  + " "
             + colorIndex + " "
             + pinType + " "
             + activeEnd  // one implies (xCoord1, yCoord1)
             + "\n{\n" 
-            + attributeFieldNumber(pinDesc, pinNumberX, pinNumberY, pinNumberOrientation, pinNumberAlignment)
+            + attributeFieldNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n"
-            + attributeFieldLabel(pinName, pinNameX, pinNameY, pinNameOrientation, pinNameAlignment)
+            + attributeFieldLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
             + "\n}");
     // it is here that the pin name could be added as an attribute
     // in curly braces {\nT x x x x x\npinnumber=3\n}" etc..

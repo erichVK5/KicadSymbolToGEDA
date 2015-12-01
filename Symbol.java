@@ -67,6 +67,8 @@ public class Symbol
   long unitCount = 0;
   String unitsLocked = "";
   String optionFlag = "";
+  long xTranslate = 0;
+  long yTranslate = 0;
 
   boolean metricSystem = false; //not really needed
 
@@ -168,6 +170,15 @@ public class Symbol
                     symFeatureCount++;
                     pinCount++;
                   }
+                
+                if (symFeatureCount > 0) {
+                  if (symbolElements[symFeatureCount-1].minXCoord() < xTranslate) {
+                    xTranslate = symbolElements[symFeatureCount-1].minXCoord();
+                  }
+                  if (symbolElements[symFeatureCount-1].minYCoord() < yTranslate) {
+                    yTranslate = symbolElements[symFeatureCount-1].minYCoord();
+                  }
+                }
 
               }
 
@@ -191,7 +202,7 @@ public class Symbol
     String output = "";
     System.out.println("Have identified this many symbol features: " + symFeatureCount);
     for (int index = 0; index < symFeatureCount; index++) {
-      output = output + symbolElements[index].toString();
+      output = output + symbolElements[index].toString(-xTranslate, -yTranslate);
       if (index < (symFeatureCount - 1)) {
         output = output + "\n";
       }

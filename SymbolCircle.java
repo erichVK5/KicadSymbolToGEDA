@@ -73,11 +73,21 @@ public class SymbolCircle extends SymbolElement
     } // could support more fill types here, but, meh...
   }
 
-  public String toString() {
+
+  public long minXCoord() {
+    return (xCoord - radius);
+  }
+
+  public long minYCoord() {
+    return (yCoord - radius);
+  }
+
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     return ("V "
-            + xCoord + " " 
-            + yCoord + " " 
+            + (xCoord + xOffset) + " " 
+            + (yCoord + yOffset) + " " 
             + radius + " "
             + colorIndex + " "
             + lineThickness + " "

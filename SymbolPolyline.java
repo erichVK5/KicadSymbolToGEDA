@@ -51,6 +51,8 @@ public class SymbolPolyline extends SymbolElement
   long yCoords[] = new long[30];
   int fillType = 0;
   long lineThickness = 0;
+  long minX = 0;
+  long minY = 0;
 
   public void SymbolPolyline()
   {
@@ -62,10 +64,6 @@ public class SymbolPolyline extends SymbolElement
     polylineDescriptor = arg;
     arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
-
-    //    for (int index = 0; index < tokens.length; index++) {
-    //System.out.println(tokens[index]);
-    //}
     
     vertices = Integer.parseInt(tokens[1]);
     //    System.out.println("Vertices found: " + vertices);
@@ -73,18 +71,32 @@ public class SymbolPolyline extends SymbolElement
     for (int vertex = 0; vertex < vertices; vertex++) {
       xCoords[vertex] = Long.parseLong(tokens[vertex*2+5]);
       yCoords[vertex] = Long.parseLong(tokens[vertex*2+6]);
+      if (minX > xCoords[vertex]) {
+        minX = xCoords[vertex];
+      }
+      if (minY > yCoords[vertex]) {
+        minY = yCoords[vertex];
+      }
     }
   }
 
-  public String toString() {
+  public long minXCoord() {
+    return minX;
+  }
+
+  public long minYCoord() {
+    return minY;
+  }
+
+  public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
     for (int index = 0; index < (vertices - 1); index++) {
       output = (output
                 + "L "
-                + xCoords[index] + " "
-                + yCoords[index] + " " 
-                + xCoords[index+1] + " "
-                + yCoords[index+1] + " "
+                + (xCoords[index] + xOffset) + " "
+                + (yCoords[index] + yOffset) + " " 
+                + (xCoords[index+1] + xOffset) + " "
+                + (yCoords[index+1] + yOffset) + " "
                 + colorIndex + " "
                 + lineThickness + " "
                 + "0 0 "     // for line capstyle (none) and dashstyle (solid)

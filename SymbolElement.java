@@ -45,7 +45,15 @@ public class SymbolElement
     elementDescriptor = arg; 
   } 
 
-  public String toString() {
+  public long minXCoord() {
+    return 0;
+  }
+
+  public long minYCoord() {
+    return 0;
+  }
+
+  public String toString(long xOffset, long yOffset) {
     return output;
   }
 
