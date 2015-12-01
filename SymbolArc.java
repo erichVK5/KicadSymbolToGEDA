@@ -64,11 +64,9 @@ public class SymbolArc extends SymbolElement
   public void constructor(String arg)
   {
     arcDescriptor = arg;
-    
+    arg = arg.replaceAll("  "," ");    
     String[] tokens = arg.split(" ");
-    
-    //		System.out.print("#The passed string:" + arg + "\n");
-    
+        
     xCoord = Integer.parseInt(tokens[1]);
     yCoord = Integer.parseInt(tokens[2]);
     radius = Integer.parseInt(tokens[3]);

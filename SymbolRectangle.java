@@ -65,10 +65,8 @@ public class SymbolRectangle extends SymbolElement
   public void constructor(String arg)
   {
     rectangleDescriptor = arg;
-    
+    arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
-    
-    //		System.out.print("#The passed string:" + arg + "\n");
     
     xCoordOne = Integer.parseInt(tokens[1]);
     yCoordOne = Integer.parseInt(tokens[2]);
