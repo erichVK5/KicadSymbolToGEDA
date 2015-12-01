@@ -68,9 +68,8 @@ public class SymbolPin extends SymbolElement
   public void constructor(String arg)
   {
     pinDescriptor = arg;
-    
+    arg = arg.replaceAll("  "," ");    
     String[] tokens = arg.split(" ");
-    arg = arg.replaceAll("  "," ");
 
     pinName = tokens[1];
     pinNumber = Integer.parseInt(tokens[2]);
