@@ -78,13 +78,20 @@ public class SymbolArc extends SymbolElement
     } else {
       fillType = 1;
     } // could support more fill types here, but, meh...
+
+    // we now update superclass min, max dimensions
+    super.updateXdimensions(xCoord - radius);
+    super.updateYdimensions(yCoord - radius);
+    super.updateXdimensions(xCoord + radius);
+    super.updateYdimensions(yCoord + radius);
+
   }
 
-  public long minXCoord() {
+  public long localMinXCoord() {
     return (xCoord - radius);
   }
 
-  public long minYCoord() {
+  public long localMinYCoord() {
     return (yCoord - radius);
   }
 

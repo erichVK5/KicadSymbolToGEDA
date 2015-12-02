@@ -21,8 +21,6 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
-
-
 /**
 *
 * This class is an archetype for kicad symbol elements
@@ -34,6 +32,10 @@ public class SymbolElement
 
   String elementDescriptor = "";  
   String output = "";
+  static long maxX = 0;
+  static long minX = 0;
+  static long maxY = 0;
+  static long minY = 0;
   
   public void SymbolPolyline()
   {
@@ -46,15 +48,41 @@ public class SymbolElement
   } 
 
   public long minXCoord() {
-    return 0;
+    return minX;
   }
 
   public long minYCoord() {
-    return 0;
+    return minY;
+  }
+
+  public long maxXCoord() {
+    return maxX;
+  }
+
+  public long maxYCoord() {
+    return maxY;
   }
 
   public String toString(long xOffset, long yOffset) {
     return output;
   }
 
+  // we use the following methods to keep track of the maximum
+  // extents of the Symbol in the XY plane, so that we can
+  // add text labels tidily. The superclass keeps track
+  // of the min, max (x,y) dimensions with static variables 
+  public void updateXdimensions(long instanceX) {
+    if (instanceX < minX) {
+      minX = instanceX;
+    } else if (instanceX > maxX) {
+      maxX = instanceX;
+    }
+  }
+  public void updateYdimensions(long instanceY) {
+    if (instanceY < minY) {
+      minY = instanceY;
+    } else if (instanceY > maxY) {
+      maxY = instanceY;
+    }
+  }
 }

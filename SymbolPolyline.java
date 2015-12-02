@@ -71,6 +71,10 @@ public class SymbolPolyline extends SymbolElement
     for (int vertex = 0; vertex < vertices; vertex++) {
       xCoords[vertex] = Long.parseLong(tokens[vertex*2+5]);
       yCoords[vertex] = Long.parseLong(tokens[vertex*2+6]);
+      // we first update the superclass static variable
+      super.updateXdimensions(xCoords[vertex]);
+      super.updateYdimensions(yCoords[vertex]);
+      // we sort out the local max,min variables
       if (minX > xCoords[vertex]) {
         minX = xCoords[vertex];
       }
@@ -81,11 +85,11 @@ public class SymbolPolyline extends SymbolElement
     }
   }
 
-  public long minXCoord() {
+  public long localMinXCoord() {
     return minX;
   }
 
-  public long minYCoord() {
+  public long localMinYCoord() {
     return minY;
   }
 

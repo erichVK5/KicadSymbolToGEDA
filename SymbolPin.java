@@ -86,6 +86,8 @@ public class SymbolPin extends SymbolElement
     pinDesc = tokens[2];
     xCoord1 = Integer.parseInt(tokens[3]);
     yCoord1 = Integer.parseInt(tokens[4]);
+    super.updateXdimensions(xCoord1);
+    super.updateYdimensions(yCoord1);
     pinLength = Integer.parseInt(tokens[5]);
     pinDirection = tokens[6];
     if (pinDirection.startsWith("R")) {
@@ -119,11 +121,16 @@ public class SymbolPin extends SymbolElement
       pinNumberOrientation = pinNameOrientation = 90; // degrees from +ve x-axis
       pinNameAlignment = 7;
     } 
+    super.updateXdimensions(xCoord1);
+    super.updateYdimensions(yCoord1);
+    super.updateXdimensions(xCoord2);
+    super.updateYdimensions(yCoord2);
+
     kicadUnit = Integer.parseInt(tokens[9]);
       
   }
 
-  public long minXCoord() {
+  public long localMinXCoord() {
     if (xCoord1 < xCoord2) {
       return xCoord1;
     } else {
@@ -131,7 +138,7 @@ public class SymbolPin extends SymbolElement
     }
   }
 
-  public long minYCoord() {
+  public long locaclMinYCoord() {
     if (yCoord1 < yCoord2) {
       return yCoord1;
     } else {

@@ -102,13 +102,18 @@ public class SymbolText extends SymbolElement
     xCoord = Integer.parseInt(tokens[2]);
     yCoord = Integer.parseInt(tokens[3]);
     textSize = Integer.parseInt(tokens[4]);
+
+    // we now update superclass min, max dimensions
+    super.updateXdimensions(xCoord);
+    super.updateYdimensions(yCoord);
+
   }
 
-  public long minXCoord() {
+  public long localMinXCoord() {
     return xCoord;
   }
 
-  public long minYCoord() {
+  public long localMinYCoord() {
     return yCoord;
   }
 

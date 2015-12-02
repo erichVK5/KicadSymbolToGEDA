@@ -72,6 +72,10 @@ public class SymbolRectangle extends SymbolElement
     yCoordOne = Integer.parseInt(tokens[2]);
     xCoordTwo = Integer.parseInt(tokens[3]);
     yCoordTwo = Integer.parseInt(tokens[4]);
+    super.updateXdimensions(xCoordOne);
+    super.updateYdimensions(yCoordOne);
+    super.updateXdimensions(xCoordTwo);
+    super.updateYdimensions(yCoordTwo);
     lineThickness = Integer.parseInt(tokens[7]);
     if (tokens[8].startsWith("N")) {
       fillType = 0;
@@ -81,7 +85,7 @@ public class SymbolRectangle extends SymbolElement
   }
 
 
-  public long minXCoord() {
+  public long localMinXCoord() {
     if (xCoordOne < xCoordTwo) {
       return xCoordOne;
     } else {
@@ -89,7 +93,7 @@ public class SymbolRectangle extends SymbolElement
     }
   }
 
-  public long minYCoord() {
+  public long localMinYCoord() {
     if (yCoordOne < yCoordTwo) {
       return yCoordOne;
     } else {

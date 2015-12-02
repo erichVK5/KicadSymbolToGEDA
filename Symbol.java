@@ -118,7 +118,6 @@ public class Symbol
 
             listOfPins = new PinList(unitCount);
 
-
             // we now step through the symbol definition line by line
             while (symbolDefinition.hasNext() && !symbolFinished)
               {
@@ -174,33 +173,25 @@ public class Symbol
                     // we check for the minimum x and y extents of the pins
                     // to sort out translation of the symbol as a whole
                     // before adding the pin to our list of pins
-                    if (newPin.minXCoord() < xTranslate) {
-                      xTranslate = newPin.minXCoord();
-                    }
-                    if (newPin.minYCoord() < yTranslate) {
-                      yTranslate = newPin.minYCoord();
-                    }
+                    xTranslate = newPin.minXCoord();
+                    yTranslate = newPin.minYCoord();
+                    //System.out.println("Updated xTranslate from new pin: " + xTranslate);
+                    //System.out.println("Updated yTranslate from new pin: " + yTranslate);
 
                     listOfPins.addPin(newPin);
-                    //symbolElements[symFeatureCount] = new SymbolPin();
-                    //symbolElements[symFeatureCount].constructor(trimmedString);
-                    //symFeatureCount++;
                     pinCount++;
                   }
 
-                // we now figure out the maximum negative X and negative Y
+                // we now update the maximum X and Y dimension
                 // extents of the kicad symbol, so that these values can
-                // be used as offsets when the gschem symbol is generated
+                // be used as offsets when the gschem symbol is generated,
                 // so that it displays conveniently in the RUQ of the
                 // X-Y plane in gschem's display window
-                if (symFeatureCount > 0) { // i.e. at least one has been found so far
-                  if (symbolElements[symFeatureCount-1].minXCoord() < xTranslate) {
-                    xTranslate = symbolElements[symFeatureCount-1].minXCoord();
-                  }
-                  if (symbolElements[symFeatureCount-1].minYCoord() < yTranslate) {
-                    yTranslate = symbolElements[symFeatureCount-1].minYCoord();
-                  }
-                }
+                xTranslate = symbolElements[symFeatureCount - 1].minXCoord();
+                yTranslate = symbolElements[symFeatureCount - 1].minYCoord();
+
+                // System.out.println("Updated xTranslate from new non-pin element: " + xTranslate);
+                // System.out.println("Updated yTranslate from new non-pin element: " + yTranslate);
               }  
           }
 
@@ -221,6 +212,7 @@ public class Symbol
   {
     String output = "";
     System.out.println("Have identified this many symbol features: " + symFeatureCount);
+    
     for (int index = 0; index < symFeatureCount; index++) {
       output = output + symbolElements[index].toString(-xTranslate, -yTranslate);
       if (index < (symFeatureCount - 1)) {
