@@ -5,7 +5,7 @@ Single slot devices convert satisfactorily.
 
 Support for conversion of multiple slot devices has been implemented.
 
-pinseq= fields are to be implemented next.
+pinseq= fields have been implemented, but need to be improved for multiple slot devices such that they are a sequential series of numbers.
 
 Quickstart guide:
 
