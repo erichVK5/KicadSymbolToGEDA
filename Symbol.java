@@ -40,6 +40,7 @@ public class Symbol
   String passedString = "";
 
   SymbolElement symbolElements[] = new SymbolElement[200];
+  PinList listOfPins;
 
   int moduleLineCountTotal = 0;	
   int padDefinitionLineCount = 0;
@@ -64,7 +65,7 @@ public class Symbol
   long pinNameOffset = 0;
   String drawPinNumber = "";
   String drawPinName = "";
-  long unitCount = 0;
+  int unitCount = 0; // default, not a multislot device
   String unitsLocked = "";
   String optionFlag = "";
   long xTranslate = 0;
@@ -111,9 +112,12 @@ public class Symbol
             pinNameOffset = Long.parseLong(tokens[4]);
             drawPinNumber = tokens[5];
             drawPinName = tokens[6];
-            unitCount = Long.parseLong(tokens[7]);
+            unitCount = Integer.parseInt(tokens[7]); // for multislot devices
             unitsLocked = tokens[8];
             optionFlag = tokens[9];
+
+            listOfPins = new PinList(unitCount);
+
 
             // we now step through the symbol definition line by line
             while (symbolDefinition.hasNext() && !symbolFinished)
@@ -149,7 +153,7 @@ public class Symbol
                     symFeatureCount++;
                     drawCircleCount++;
                   }
-                else if (tokens[0].startsWith("A"))
+                else if (tokens[0].startsWith("A") && !tokens[0].startsWith("AL"))
                   {
                     symbolElements[symFeatureCount] = new SymbolArc();
                     symbolElements[symFeatureCount].constructor(trimmedString);
@@ -165,9 +169,12 @@ public class Symbol
                   }
                 else if (tokens[0].startsWith("X"))
                   {  // we have identified a pin definition in the symbol
-                    symbolElements[symFeatureCount] = new SymbolPin();
-                    symbolElements[symFeatureCount].constructor(trimmedString);
-                    symFeatureCount++;
+                    SymbolPin newPin = new SymbolPin();
+                    newPin.constructor(trimmedString);
+                    listOfPins.addPin(newPin);
+                    //symbolElements[symFeatureCount] = new SymbolPin();
+                    //symbolElements[symFeatureCount].constructor(trimmedString);
+                    //symFeatureCount++;
                     pinCount++;
                   }
 
@@ -183,7 +190,6 @@ public class Symbol
                   if (symbolElements[symFeatureCount-1].minYCoord() < yTranslate) {
                     yTranslate = symbolElements[symFeatureCount-1].minYCoord();
                   }
-
                 }
               }  
           }
@@ -211,6 +217,7 @@ public class Symbol
         output = output + "\n";
       }
     }
+    output = output + listOfPins.toString(-xTranslate, -yTranslate);
     return output;
   }
 

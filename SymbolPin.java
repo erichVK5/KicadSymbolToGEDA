@@ -68,6 +68,7 @@ public class SymbolPin extends SymbolElement
   String pinDirection = "";
   int pinType = 0; // 0 = normal, and 1 = bus/unused
   int activeEnd = 0; // 1 = first end, 0 = second end
+  int kicadUnit = 0; // equivalent to gschem "slot"
 
   public void SymbolPin()
   {
@@ -118,6 +119,7 @@ public class SymbolPin extends SymbolElement
       pinNumberOrientation = pinNameOrientation = 90; // degrees from +ve x-axis
       pinNameAlignment = 7;
     } 
+    kicadUnit = Integer.parseInt(tokens[9]);
       
   }
 
@@ -154,6 +156,14 @@ public class SymbolPin extends SymbolElement
             + "\n}");
     // it is here that the pin name could be added as an attribute
     // in curly braces {\nT x x x x x\npinnumber=3\n}" etc..
+  }
+
+  public int slot() {
+    return kicadUnit;
+  }
+
+  public int pinNum() {
+    return pinNumber;
   }
 
   private String attributeFieldLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {

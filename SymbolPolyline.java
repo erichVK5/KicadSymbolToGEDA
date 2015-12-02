@@ -66,7 +66,7 @@ public class SymbolPolyline extends SymbolElement
     String[] tokens = arg.split(" ");
     
     vertices = Integer.parseInt(tokens[1]);
-    //    System.out.println("Vertices found: " + vertices);
+    // System.out.println("Vertices found: " + vertices);
     lineThickness = Integer.parseInt(tokens[4]);
     for (int vertex = 0; vertex < vertices; vertex++) {
       xCoords[vertex] = Long.parseLong(tokens[vertex*2+5]);
@@ -77,6 +77,7 @@ public class SymbolPolyline extends SymbolElement
       if (minY > yCoords[vertex]) {
         minY = yCoords[vertex];
       }
+      // System.out.println("(" +  xCoords[vertex] + ", " +  yCoords[vertex] + ")");
     }
   }
 
@@ -101,6 +102,9 @@ public class SymbolPolyline extends SymbolElement
                 + lineThickness + " "
                 + "0 0 "     // for line capstyle (none) and dashstyle (solid)
                 + "-1 -1"); // for dashlength and dashspace (not used) 
+      if (index < (vertices - 2)) {
+        output = output + "\n";
+      }
     }
     return output;
   }
