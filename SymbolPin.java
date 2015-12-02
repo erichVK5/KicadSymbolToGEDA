@@ -153,6 +153,8 @@ public class SymbolPin extends SymbolElement
             + attributeFieldNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n"
             + attributeFieldLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
+            + "\n"
+            + attributePinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n}");
     // it is here that the pin name could be added as an attribute
     // in curly braces {\nT x x x x x\npinnumber=3\n}" etc..
@@ -182,5 +184,14 @@ public class SymbolPin extends SymbolElement
     return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
             + showNameVal + " " + orientation + " " + alignment + " 1\npinnumber=" + pinDesc);
   }
+  private String attributePinSeq(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int colour = 5;
+    int textSize = 7;
+    int textVisibility = 0;
+    int showNameVal = 1;
+    return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
+            + showNameVal + " " + orientation + " " + alignment + " 1\npinseq=" + pinDesc);
+  }
+
 
 }
