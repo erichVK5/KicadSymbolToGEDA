@@ -171,6 +171,16 @@ public class Symbol
                   {  // we have identified a pin definition in the symbol
                     SymbolPin newPin = new SymbolPin();
                     newPin.constructor(trimmedString);
+                    // we check for the minimum x and y extents of the pins
+                    // to sort out translation of the symbol as a whole
+                    // before adding the pin to our list of pins
+                    if (newPin.minXCoord() < xTranslate) {
+                      xTranslate = newPin.minXCoord();
+                    }
+                    if (newPin.minYCoord() < yTranslate) {
+                      yTranslate = newPin.minYCoord();
+                    }
+
                     listOfPins.addPin(newPin);
                     //symbolElements[symFeatureCount] = new SymbolPin();
                     //symbolElements[symFeatureCount].constructor(trimmedString);
