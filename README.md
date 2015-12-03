@@ -1,11 +1,20 @@
 # KicadSymbolToGEDA
 A Kicad schematic symbol to GEDA gschema conversion utility
 
-Single slot devices convert satisfactorily.
+Single and multiple slot Kicad symbols can be converted to gschem compatible symbols.
 
-Support for conversion of multiple slot devices has been implemented.
+In addition to the drawn symbol, pins, pin numbers, pin labels, refded and device name, converted symbols (.sym) contain the following information derived from the Kicad library (.lib) file.
 
-pinseq= fields have been implemented, but need to be improved for multiple slot devices such that they are a sequential series of numbers.
+pinseq=
+slot=
+numslots=
+slotdef=
+pinseq=
+pintype=
+footprint=
+
+Remaining functionality to be refined includes the HTML summary file and author credit options.
+
 
 Quickstart guide:
 
