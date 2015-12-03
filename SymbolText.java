@@ -119,7 +119,6 @@ public class SymbolText extends SymbolElement
     if (maxTextY < yCoord) {
       maxTextY = yCoord;
     }
-
   }
 
   public long localMinXCoord() {
@@ -159,6 +158,8 @@ public class SymbolText extends SymbolElement
   public static String attributeString(long xOffset, long yOffset, String attribute) {
     long annotationTextYIncrement = 110;
     maxTextY += annotationTextYIncrement;
+    // we add a bit of space above the previous visible text fields
+    // before adding the invisible attribute fields to the symbol
     if (invisibleAttributeCount == 0) {
       maxTextY += annotationTextYIncrement;
     }

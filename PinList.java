@@ -62,6 +62,7 @@ public class PinList {
       output = output + "\n" + slotArrays[0][index].toString(xOffset, yOffset); 
     }
     for (int index = 0; index < pinCounts[1]; index++) {
+      // by default, for a multislot device, we only display slot 1
       output = output + "\n" + slotArrays[1][index].toString(xOffset, yOffset); 
     }
     output = output + slotSummary(xOffset, yOffset);
@@ -72,9 +73,12 @@ public class PinList {
     String summary = "";
     if (kicadSlots < 2) {
       summary = SymbolText.attributeString(xOffset, yOffset, "numslots=0");
-    } else {
+    } else { // this is a multi-slot device
+      // we summarise the number of slots
       summary = SymbolText.attributeString(xOffset, yOffset, "numslots=" + kicadSlots);
-      // now we need to come up with some slotdefs
+      // we explain which slot is implemented in the symbol
+      summary = summary + SymbolText.attributeString(xOffset, yOffset, "slot=1");
+      // then we generate some slotdefs
       for (int index = 1; index < numSlots; index++) {
         summary = summary + SymbolText.attributeString(xOffset, yOffset, "slotdef=" + index + ":");
         for (int pin = 0 ; pin < pinCounts[index]; pin ++) {

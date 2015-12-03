@@ -21,8 +21,6 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
-
-
 /**
 *
 * This class is passed a Kicad Pin descriptor string of the form "X Ni x1 y1 x2 y2 ... xi yi fill"
@@ -45,6 +43,11 @@
 
 public class SymbolPin extends SymbolElement
 {
+  // the following static variable keeps track
+  // of how many pin descriptions have been generated
+  // in multislot devices when the symbols is exported
+  // in gschem format
+  static int pinSeqTally = 0;
 
   String pinDescriptor = "";
   String output = "";
@@ -58,12 +61,13 @@ public class SymbolPin extends SymbolElement
   long yCoord2 = 0;
   long pinNumberX = 0;
   long pinNumberY = 0;
-  int pinNumberAlignment = 3;
   long pinNameX = 0;
   long pinNameY = 0;
-  int pinNameAlignment = 0;
+  int pinNumberAlignment = 3; // this centres pin number mid pin
   int pinNumberOrientation = 0; // degrees rotation from +ve x-axis
+  int pinNameAlignment = 0; // default 0 => bottom left corner at (x,y)
   int pinNameOrientation = 0;
+  long textKerning = 15; // to make text sit adjacent to other elements
   long pinLength = 0;
   String pinDirection = "";
   int pinType = 0; // 0 = normal, and 1 = bus/unused
@@ -90,37 +94,48 @@ public class SymbolPin extends SymbolElement
     super.updateYdimensions(yCoord1);
     pinLength = Integer.parseInt(tokens[5]);
     pinDirection = tokens[6];
+    // we now sort out the orinetation and position
+    // of the pin number and pin label, based on the
+    // direction of the pin & the pin location,
+    // and add some kerning while we are at it
+    // to prevent the text obscuring adjacent
+    // elements/features
     if (pinDirection.startsWith("R")) {
       xCoord2 = xCoord1 + pinLength;
       pinNumberX = (xCoord1 + xCoord2)/2;
-      pinNameX = xCoord2;
+      pinNameX = xCoord2 + textKerning;
       yCoord2 = yCoord1;
-      pinNumberY = pinNameY = yCoord1;
+      pinNameY = yCoord1;
+      pinNumberY = yCoord1 + textKerning;
       pinNameAlignment = 1;
     } else if (pinDirection.startsWith("L")) {
       xCoord2 = xCoord1 - pinLength;
       pinNumberX = (xCoord1 + xCoord2)/2;
-      pinNameX = xCoord2;
+      pinNameX = xCoord2 - textKerning;
       yCoord2 = yCoord1;
-      pinNumberY = pinNameY = yCoord1;
+      pinNameY = yCoord1;
+      pinNumberY = yCoord1 + textKerning;
       pinNameAlignment = 7;
     } else if (pinDirection.startsWith("U")) {
       xCoord2 = xCoord1;
-      pinNumberX = pinNameX = xCoord1;
+      pinNameX = xCoord1;
+      pinNumberX = xCoord1 - textKerning;
       yCoord2 = yCoord1 + pinLength;
       pinNumberY = (yCoord1 + yCoord2)/2;
-      pinNameY = yCoord2;
+      pinNameY = yCoord2 + textKerning;
       pinNumberOrientation = pinNameOrientation = 90; // degrees from +ve x-axis
       pinNameAlignment = 1;
     } else if (pinDirection.startsWith("D")) {
       xCoord2 = xCoord1;
-      pinNumberX = pinNameX = xCoord1;
+      pinNameX = xCoord1;
+      pinNumberX = xCoord1 - textKerning;
       yCoord2 = yCoord1 - pinLength;
       pinNumberY = (yCoord1 + yCoord2)/2;
-      pinNameY = yCoord2;
+      pinNameY = yCoord2 - textKerning;
       pinNumberOrientation = pinNameOrientation = 90; // degrees from +ve x-axis
       pinNameAlignment = 7;
     } 
+    // we keep track of the overall size of the drawn elements
     super.updateXdimensions(xCoord1);
     super.updateYdimensions(yCoord1);
     super.updateXdimensions(xCoord2);
@@ -163,8 +178,6 @@ public class SymbolPin extends SymbolElement
             + "\n"
             + attributePinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n}");
-    // it is here that the pin name could be added as an attribute
-    // in curly braces {\nT x x x x x\npinnumber=3\n}" etc..
   }
 
   public int slot() {
@@ -177,7 +190,7 @@ public class SymbolPin extends SymbolElement
 
   private String attributeFieldLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {
     int colour = 5;
-    int textSize = 7;
+    int textSize = 5;
     int textVisibility = 1;
     int showNameVal = 1;
     return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
@@ -196,8 +209,11 @@ public class SymbolPin extends SymbolElement
     int textSize = 7;
     int textVisibility = 0;
     int showNameVal = 1;
+    // we use the class static variable pinSeqTally to keep track
+    // of how many rendered pins have been generated
+    pinSeqTally++;
     return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
-            + showNameVal + " " + orientation + " " + alignment + " 1\npinseq=" + pinDesc);
+            + showNameVal + " " + orientation + " " + alignment + " 1\npinseq=" + pinSeqTally);
   }
 
 
