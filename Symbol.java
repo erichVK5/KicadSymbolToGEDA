@@ -115,7 +115,8 @@ public class Symbol
             unitCount = Integer.parseInt(tokens[7]); // for multislot devices
             unitsLocked = tokens[8];
             optionFlag = tokens[9];
-
+            // now that we know the number of slots, we can create the
+            // data structure to hold the pin data
             listOfPins = new PinList(unitCount);
 
             // we now step through the symbol definition line by line

@@ -37,23 +37,35 @@ public class PinList {
   int[] pinCounts;
   int numSlots = 1;
   int kicadSlots = 0;
-  int pinsPerSlot = 100; //default value, need to accomodate resizing
+  int pinsPerSlot = 10; //default value, but resizes automatically if needed
 
   public PinList(int slotCount) {
     kicadSlots = slotCount;
     numSlots = slotCount + 1;
-    System.out.println("New pinlist created with " + numSlots + " slots");
+    //    System.out.println("New pinlist created with " + numSlots + " slots");
     slotArrays = new SymbolPin[numSlots][pinsPerSlot];
     pinCounts = new int[numSlots];
   }
 
   public void addPin(SymbolPin newPin) {
     int currentSlot = newPin.slot();
-    System.out.println("Added a pin from slot: " + currentSlot );
+    //   System.out.println("Added a pin from slot: " + currentSlot );
     slotArrays[currentSlot][pinCounts[currentSlot]] = newPin;
     pinCounts[currentSlot] = pinCounts[currentSlot] + 1;
-    // TO DO: test for more pins than default pin count
-    // and resize SymbolPin[][] accordingly
+    // we test to see if our pin storage structure is full.
+    // If so, we create a new one twice the size, and copy
+    // everything over to it
+    if (pinCounts[currentSlot] == pinsPerSlot) {
+      pinsPerSlot = pinsPerSlot*2;
+      SymbolPin[][] biggerSlotArrays = new SymbolPin[numSlots][pinsPerSlot];
+      for (int slot = 0; slot < numSlots; slot++) {
+        for (int pin = 0; pin < pinCounts[slot]; pin++) {
+          biggerSlotArrays[slot][pin] = slotArrays[slot][pin];
+        }
+      }
+      slotArrays = biggerSlotArrays;
+      // System.out.println("I just resized the pin data structure.");
+    }
   }
 
   public String toString(long xOffset, long yOffset) {
