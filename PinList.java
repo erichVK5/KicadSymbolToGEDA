@@ -92,7 +92,7 @@ public class PinList {
       for (int index = 1; index < numSlots; index++) {
         summary = summary + SymbolText.attributeString(xOffset, yOffset, "slotdef=" + index + ":");
         for (int pin = 0 ; pin < pinCounts[index]; pin ++) {
-          summary = summary + slotArrays[index][pin].pinNum();
+          summary = summary + slotArrays[index][pin].pinNumber;
           if (pin < (pinCounts[index] -1)) {
             summary = summary + ",";
           }

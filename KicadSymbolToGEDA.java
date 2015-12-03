@@ -181,7 +181,8 @@ public class KicadSymbolToGEDA
 
     int extractedSymbolLineCounter = 0;
     int extractedSymbolCount = 0;
-    Symbol[] symbolsInLibrary = new Symbol[100];
+    int defaultSymbolArraySize = 25;
+    Symbol[] symbolsInLibrary = new Symbol[defaultSymbolArraySize];
 
     boolean firstLine = true;
 
@@ -229,6 +230,10 @@ public class KicadSymbolToGEDA
 
         if (loadedLibraryStringArray[counter].startsWith("DEF"))
           {
+            if (verboseMode)
+              {
+                System.out.println("Found a DEF");
+              }
             inSymbolDef = true;
           }
         else if (loadedLibraryStringArray[counter].startsWith("ENDDEF"))
@@ -256,7 +261,14 @@ public class KicadSymbolToGEDA
             symbolsInLibrary[extractedSymbolCount] = new Symbol(tempStringArg);
             extractedSymbolLineCounter = 0;
             extractedSymbolCount++;
-				
+            // we check to see if we are about to overflow our Symbols array
+            if (extractedSymbolCount == symbolsInLibrary.length) {
+              Symbol[] newSymbolsInLibrary = new Symbol[symbolsInLibrary.length*2];
+              for (int index = 0; index < extractedSymbolCount; index++) {
+                newSymbolsInLibrary[index] = symbolsInLibrary[index];
+              }
+              symbolsInLibrary = newSymbolsInLibrary;
+            }
           }
 
         if (inSymbolDef)

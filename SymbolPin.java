@@ -53,7 +53,7 @@ public class SymbolPin extends SymbolElement
   String output = "";
   
   String pinName = "";
-  int pinNumber = 0;
+  String pinNumber = ""; // kicad sometimes uses "~" != integer
   String pinDesc = "";
   long xCoord1 = 0;
   long yCoord1 = 0;
@@ -96,7 +96,7 @@ public class SymbolPin extends SymbolElement
 
   public void SymbolPin()
   {
-    output = "#Hmm, the no arg symbol polygon constructor didn't do much";
+    output = "#Hmm, the no arg symbol pin constructor didn't do much";
   }
   
   public void constructor(String arg)
@@ -106,7 +106,7 @@ public class SymbolPin extends SymbolElement
     String[] tokens = arg.split(" ");
 
     pinName = tokens[1];
-    pinNumber = Integer.parseInt(tokens[2]);
+    pinNumber = tokens[2];
     pinDesc = tokens[2];
     xCoord1 = Integer.parseInt(tokens[3]);
     yCoord1 = Integer.parseInt(tokens[4]);
@@ -220,10 +220,6 @@ public class SymbolPin extends SymbolElement
 
   public int slot() {
     return kicadUnit; // kicadUnit is equivalent to slot in gschem
-  }
-
-  public int pinNum() {
-    return pinNumber;
   }
 
   private String attributeFieldPinLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {

@@ -67,18 +67,20 @@ public class SymbolText extends SymbolElement
   
   public void constructor(String arg)
   {
+    arg = arg.replaceAll("^[a-zA-Z0-9]\"-_","_");
+    System.out.println(arg);
     textDescriptor = arg;
     // herein lies a most peculiar danger, heretofore unimagined, that
     // the kicadians might perchance elect to have text fields with
     // spaces within double quote delimited text fields; oh, the horror 
-    int firstQuotes = 0;
-    int secondQuotes = 0;
-    firstQuotes = arg.indexOf('"');
-    secondQuotes = arg.indexOf('"',firstQuotes+1);
+    //    int firstQuotes = 0;
+    //int secondQuotes = 0;
+    //firstQuotes = arg.indexOf('"');
+    //secondQuotes = arg.indexOf('"',firstQuotes+1);
     // so, we extract the text field, and then...
-    textField = arg.substring(firstQuotes+1,secondQuotes);
+    //textField = arg.substring(firstQuotes+1,secondQuotes);
     // ...we put an underscore in to avoid falling foul of the .split(" ") method
-    arg = arg.substring(0,firstQuotes) + textField.replaceAll(" ","_") + arg.substring(secondQuotes+1);
+    //arg = arg.substring(0,firstQuotes) + textField.replaceAll(" ","_") + arg.substring(secondQuotes+1);
     arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
     // and any underscores added to the text field remain untouched by .split(" ")
