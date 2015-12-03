@@ -21,8 +21,6 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
-
-
 /**
  *
  * This object coordinates the header, text descriptors, drawn lines, drawn arcs, drawn circles
@@ -228,6 +226,10 @@ public class Symbol
     // get the listOfPins to also generate the associated slotdef, slot,
     // numslots attribute fields
     output = output + listOfPins.toString(-xTranslate, -yTranslate);
+    // we then set up a default footprint of unknown, since kicad does
+    // necessarily specify a footprint, (theoretically, it can in F2 field)
+    // TO DO - add checking for footprint field while parsing ? usefulness
+    output = output + SymbolText.attributeString(-xTranslate, -yTranslate, "footprint=unknown");
     // finally, we put in a comment field to show aliases/equivalent devices
     if (deviceAliases != null) {
       output = output + SymbolText.attributeString(-xTranslate, -yTranslate, deviceAliases);

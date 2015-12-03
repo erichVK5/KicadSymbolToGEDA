@@ -69,6 +69,9 @@ public class SymbolPin extends SymbolElement
   int activeEnd = 0; // 1 = first end, 0 = second end
   int kicadUnit = 0; // equivalent to gschem "slot"
 
+  String kicadEType = ""; // kicad equivalent to gschem pintype=
+  String pinEType = "pas"; //default setting
+
   // the following variables define the visual appearance of the
   // pin, plus its pin label, pin number, and pinseq attribute text
   // colours, size and visibility in gschem
@@ -78,7 +81,7 @@ public class SymbolPin extends SymbolElement
   int pinNameAlignment = 0; // default 0 => bottom left corner at (x,y)
   int pinNameOrientation = 0;
   int pinColourIndex = 3;
-  int pinLabelColour = 5;
+  int pinLabelColour = 3;
   int pinLabelSize = 5;
   int pinLabelVis = 1;
   int pinLabelShow = 1;
@@ -159,6 +162,24 @@ public class SymbolPin extends SymbolElement
     super.updateYdimensions(yCoord2);
     // the kicadUnit is equivalent to the slot in gschem... useful
     kicadUnit = Integer.parseInt(tokens[9]);
+
+    kicadEType = tokens[11]; // the electrical type of the pin
+    if (kicadEType.equals("I")) {
+      pinEType = "in";
+    } else if (kicadEType.equals("O")) {
+      pinEType = "out";
+    } else if (kicadEType.equals("T")) {
+      pinEType = "tri";
+    } else if (kicadEType.equals("W") || kicadEType.equals("w")) {
+      pinEType = "pwr";
+    } else if (kicadEType.equals("C")) {
+      pinEType = "oc";
+    } else if (kicadEType.equals("E")) {
+      pinEType = "oe";
+    } else {
+      pinEType = "pas"; // default setting catches bidir, unspec. 
+    } // kicad has no gschem totem pole or clock pin equivalents
+
   }
 
   public long localMinXCoord() {
@@ -192,6 +213,8 @@ public class SymbolPin extends SymbolElement
             + attributeFieldPinLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
             + "\n"
             + attributeFieldPinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + "\n"
+            + attributeFieldPinType(pinEType, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n}");
   }
 
@@ -218,7 +241,13 @@ public class SymbolPin extends SymbolElement
     // we use the class static variable pinSeqTally to keep track
     // of how many rendered pins have been generated
     pinSeqTally++;
-    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, pinNameOrientation, pinNameAlignment, numLines, ("pinseq=" + pinSeqTally));
+    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pinseq=" + pinSeqTally));
+  }
+
+  private String attributeFieldPinType(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    // we use the same settings for colour, size and visibility as the hidden pin sequence fields
+    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pintype=" + pinDesc));
   }
 
 }

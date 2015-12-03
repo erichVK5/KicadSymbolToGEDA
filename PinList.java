@@ -21,8 +21,6 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
-
-
 /**
 *
 * This class stores a collection of SymbolPin objects and has methods to determine
