@@ -42,11 +42,18 @@ public class SymbolText extends SymbolElement
 
   String textDescriptor = "";  
   String output = "";
+
+  // the following three variables are used in an
+  // attempt to keep the annotations tidy and properly 
+  // justified relative to the existing text fields
+  static long maxTextX = 0;
+  static long maxTextY = 0;
+  static int invisibleAttributeCount = 0;
    
   long xCoord = 0;
   long yCoord = 0;
   long radius = 0;
-  long defaultTextSize = 12;
+  int defaultTextSize = 12;
   long textSize = 0;
   String textField = "";
 
@@ -106,6 +113,12 @@ public class SymbolText extends SymbolElement
     // we now update superclass min, max dimensions
     super.updateXdimensions(xCoord);
     super.updateYdimensions(yCoord);
+    if (maxTextX < xCoord) {
+      maxTextX = xCoord;
+    }
+    if (maxTextY < yCoord) {
+      maxTextY = yCoord;
+    }
 
   }
 
@@ -119,22 +132,55 @@ public class SymbolText extends SymbolElement
 
   public String toString(long xOffset, long yOffset) {
     int colorIndex = 3;
-    int visibility = 1;
+    int textSize = defaultTextSize;
+    int fieldVis = 1;
+    int attrVis = 0;
     int textAngle = 0;
-    int textAlignment = 0;
+    int textAlignment = 0; // bottom left alignment/origin
     int numLines = 1;
+    String text = textField;
+    return toString(xOffset, yOffset, colorIndex, textSize, fieldVis, attrVis, textAngle, textAlignment, numLines, text);
+  }
+
+  public String toString(long xOffset, long yOffset, int colorIndex, int textSize, int fieldVis, int attrVis, int textAngle, int textAlignment, int numLines, String text) {
     return ("T "
             + (xCoord + xOffset) + " " 
             + (yCoord + yOffset) + " " 
             + colorIndex + " "
-            + defaultTextSize + " "
-            + "1 " // visibility on = 1
-            + "0 " //attribute visibility off
+            + textSize + " "
+            + fieldVis + " " // visibility on = 1
+            + attrVis + " " // "0 " //attribute visibility off
             + textAngle + " " // not rotated = 0 
             + textAlignment + " " //default value
             + numLines + "\n"
-            + textField);
+            + text);
   }
-  
 
+  public static String attributeString(long xOffset, long yOffset, String attribute) {
+    long annotationTextYIncrement = 110;
+    maxTextY += annotationTextYIncrement;
+    if (invisibleAttributeCount == 0) {
+      maxTextY += annotationTextYIncrement;
+    }
+    invisibleAttributeCount++;
+    int colorIndex = 3;
+    int textSize = 7;
+    int fieldVis = 0;
+    int attrVis = 0;
+    int textAngle = 0;
+    int textAlignment = 0;
+    int numLines = 1;
+    return ("\nT "
+            + (maxTextX + xOffset) + " " 
+            + (maxTextY + yOffset) + " " 
+            + colorIndex + " "
+            + textSize + " "
+            + fieldVis + " " // visibility on = 1
+            + attrVis + " " // "0 " //attribute visibility off
+            + textAngle + " " // not rotated = 0 
+            + textAlignment + " " //default value
+            + numLines + "\n"
+            + attribute );
+    // return toString(maxTextX, maxTextY, colorIndex, textSize, fieldVis, attrVis, textAngle, textAlignment, numLines, attribute);
+  }
 }

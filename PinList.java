@@ -37,15 +37,12 @@ public class PinList {
   int[] pinCounts;
   int numSlots = 1;
   int kicadSlots = 0;
+  int pinsPerSlot = 100; //default value, need to accomodate resizing
 
   public PinList(int slotCount) {
     kicadSlots = slotCount;
     numSlots = slotCount + 1;
-    //    if (slotCount == 1) { // deal with degenerate case
-    //  numSlots = 1;
-    //}
     System.out.println("New pinlist created with " + numSlots + " slots");
-    int pinsPerSlot = 100;
     slotArrays = new SymbolPin[numSlots][pinsPerSlot];
     pinCounts = new int[numSlots];
   }
@@ -55,42 +52,37 @@ public class PinList {
     System.out.println("Added a pin from slot: " + currentSlot );
     slotArrays[currentSlot][pinCounts[currentSlot]] = newPin;
     pinCounts[currentSlot] = pinCounts[currentSlot] + 1;
+    // TO DO: test for more pins than default pin count
+    // and resize SymbolPin[][] accordingly
   }
 
   public String toString(long xOffset, long yOffset) {
     String output = "";
-    //    if ((numSlots == 0) || (numSlots == 1)) {
     for (int index = 0; index < pinCounts[0]; index++) {
       output = output + "\n" + slotArrays[0][index].toString(xOffset, yOffset); 
     }
     for (int index = 0; index < pinCounts[1]; index++) {
       output = output + "\n" + slotArrays[1][index].toString(xOffset, yOffset); 
     }
-    //    } else if (numSlots >1) {
-    //    for (int index = 0; index < pinCounts[1]; index++) {
-    //  output = output + "\n" + slotArrays[1][index].toString(xOffset, yOffset); 
-    // }
-    //}
-    output = output + slotSummary();
+    output = output + slotSummary(xOffset, yOffset);
     return output;
   }
 
-  private String slotSummary() {
+  private String slotSummary(long xOffset, long yOffset) {
     String summary = "";
     if (kicadSlots < 2) {
-      summary = "\nT 0 300 5 7 0 1 0 1 1" + "\nnumslots=0";
+      summary = SymbolText.attributeString(xOffset, yOffset, "numslots=0");
     } else {
-      summary = "\nT 0 300 5 7 0 1 0 1 1" + "\nnumslots=" + kicadSlots;
+      summary = SymbolText.attributeString(xOffset, yOffset, "numslots=" + kicadSlots);
       // now we need to come up with some slotdefs
       for (int index = 1; index < numSlots; index++) {
-        summary = summary + "\nT 0 300 5 7 0 1 0 1 1\n" + "slotdef=" + index + ":";
+        summary = summary + SymbolText.attributeString(xOffset, yOffset, "slotdef=" + index + ":");
         for (int pin = 0 ; pin < pinCounts[index]; pin ++) {
           summary = summary + slotArrays[index][pin].pinNum();
           if (pin < (pinCounts[index] -1)) {
             summary = summary + ",";
           }
         }
-        //        summary = summary + "\n";
       }
     }
     return summary;

@@ -213,12 +213,14 @@ public class Symbol
     String output = "";
     System.out.println("Have identified this many symbol features: " + symFeatureCount);
     
+    // we first generate gschem symbol definitions for non-pin elements and features
     for (int index = 0; index < symFeatureCount; index++) {
       output = output + symbolElements[index].toString(-xTranslate, -yTranslate);
       if (index < (symFeatureCount - 1)) {
         output = output + "\n";
       }
     }
+    // we then add symbol definitions for pin elements and features
     output = output + listOfPins.toString(-xTranslate, -yTranslate);
     return output;
   }
