@@ -71,6 +71,8 @@ public class Symbol
   long xTranslate = 0;
   long yTranslate = 0;
 
+  String deviceAliases;
+
   boolean metricSystem = false; //not really needed
 
   public Symbol(String args)
@@ -124,11 +126,8 @@ public class Symbol
               {
                 parseString = symbolDefinition.nextLine();
                 trimmedString = parseString.trim();
-                //	System.out.println("Current symbol def line:" + 
-                //			trimmedString);
-
                 // we tokenize the line
-                tokens = trimmedString.split(" ");
+                tokens = trimmedString.split(" "); // may need to look out for "  " whitespace
 					
                 // and we then decide what to do with the tokenized lines
                 // we start with F descriptor fields and plain text fields
@@ -167,6 +166,14 @@ public class Symbol
                     symFeatureCount++;
                     drawPolylineCount++;
                   }
+                else if (tokens[0].startsWith("AL") && (tokens.length > 1))
+                  {
+                    deviceAliases = "comment=Equivalent devices: " + tokens[1];
+                    for (int index = 2; index < (tokens.length-1); index++) {
+                      deviceAliases = deviceAliases + ", " + tokens[index];
+                    }
+                    System.out.println(deviceAliases);
+                  }
                 else if (tokens[0].startsWith("X"))
                   {  // we have identified a pin definition in the symbol
                     SymbolPin newPin = new SymbolPin();
@@ -178,7 +185,6 @@ public class Symbol
                     yTranslate = newPin.minYCoord();
                     //System.out.println("Updated xTranslate from new pin: " + xTranslate);
                     //System.out.println("Updated yTranslate from new pin: " + yTranslate);
-
                     listOfPins.addPin(newPin);
                     pinCount++;
                   }
@@ -190,7 +196,6 @@ public class Symbol
                 // X-Y plane in gschem's display window
                 xTranslate = symbolElements[symFeatureCount - 1].minXCoord();
                 yTranslate = symbolElements[symFeatureCount - 1].minYCoord();
-
                 // System.out.println("Updated xTranslate from new non-pin element: " + xTranslate);
                 // System.out.println("Updated yTranslate from new non-pin element: " + yTranslate);
               }  
@@ -201,7 +206,6 @@ public class Symbol
     // we also create a single string version of the module for
     // use by the toString() method
     reconstructedKicadSymbolAsString = args;
-
   }
 
   public String generateGEDAsymbolFilename()
@@ -212,8 +216,7 @@ public class Symbol
   public String generateGEDAsymbol()
   {
     String output = "";
-    System.out.println("Have identified this many symbol features: " + symFeatureCount);
-    
+    //System.out.println("Have identified this many symbol features: " + symFeatureCount);
     // we first generate gschem symbol definitions for non-pin elements and features
     for (int index = 0; index < symFeatureCount; index++) {
       output = output + symbolElements[index].toString(-xTranslate, -yTranslate);
@@ -221,8 +224,14 @@ public class Symbol
         output = output + "\n";
       }
     }
-    // we then add symbol definitions for pin elements and features
+    // we then add symbol definitions for pin elements and features, and
+    // get the listOfPins to also generate the associated slotdef, slot,
+    // numslots attribute fields
     output = output + listOfPins.toString(-xTranslate, -yTranslate);
+    // finally, we put in a comment field to show aliases/equivalent devices
+    if (deviceAliases != null) {
+      output = output + SymbolText.attributeString(-xTranslate, -yTranslate, deviceAliases);
+    }
     return output;
   }
 
