@@ -1,7 +1,9 @@
 # KicadSymbolToGEDA
-A Kicad schematic symbol to GEDA gschema conversion utility
+A Kicad schematic symbol to GEDA gschema symbol conversion utility
 
 Single and multiple slot Kicad symbols can be converted to gschem compatible symbols.
+
+Libraries with multiple symbols are batch converted by the utility automatically.
 
 In addition to the drawn symbol, pins, pin numbers, pin labels, refdes and device name, converted symbols (.sym) contain the following information derived from the Kicad library (.lib) file:
 
@@ -38,6 +40,9 @@ Useful links:
 
 	http://www.kicadlib.org/
 	a good range of symbols (.lib libraries) and footprints (.mod modules)
+
+	http://library.oshec.org/
+	an enormous range of symbol libraries
 
 	http://smisioto.no-ip.org/elettronica/kicad/kicad-en.htm
 	an impressive collection of mostly Kicad footprints (.mod)
