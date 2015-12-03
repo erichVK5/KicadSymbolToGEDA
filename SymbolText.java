@@ -138,13 +138,13 @@ public class SymbolText extends SymbolElement
     int textAlignment = 0; // bottom left alignment/origin
     int numLines = 1;
     String text = textField;
-    return toString(xOffset, yOffset, colorIndex, textSize, fieldVis, attrVis, textAngle, textAlignment, numLines, text);
+    return toString((xCoord+xOffset), (yCoord+yOffset), colorIndex, textSize, fieldVis, attrVis, textAngle, textAlignment, numLines, text);
   }
 
-  public String toString(long xOffset, long yOffset, int colorIndex, int textSize, int fieldVis, int attrVis, int textAngle, int textAlignment, int numLines, String text) {
+  public static String toString(long xOffset, long yOffset, int colorIndex, int textSize, int fieldVis, int attrVis, int textAngle, int textAlignment, int numLines, String text) {
     return ("T "
-            + (xCoord + xOffset) + " " 
-            + (yCoord + yOffset) + " " 
+            + xOffset + " " 
+            + yOffset + " " 
             + colorIndex + " "
             + textSize + " "
             + fieldVis + " " // visibility on = 1

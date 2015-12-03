@@ -63,16 +63,33 @@ public class SymbolPin extends SymbolElement
   long pinNumberY = 0;
   long pinNameX = 0;
   long pinNameY = 0;
-  int pinNumberAlignment = 3; // this centres pin number mid pin
-  int pinNumberOrientation = 0; // degrees rotation from +ve x-axis
-  int pinNameAlignment = 0; // default 0 => bottom left corner at (x,y)
-  int pinNameOrientation = 0;
-  long textKerning = 15; // to make text sit adjacent to other elements
   long pinLength = 0;
   String pinDirection = "";
   int pinType = 0; // 0 = normal, and 1 = bus/unused
   int activeEnd = 0; // 1 = first end, 0 = second end
   int kicadUnit = 0; // equivalent to gschem "slot"
+
+  // the following variables define the visual appearance of the
+  // pin, plus its pin label, pin number, and pinseq attribute text
+  // colours, size and visibility in gschem
+  long textKerning = 15; // to make text sit adjacent to other elements
+  int pinNumberAlignment = 3; // this centres pin number mid pin
+  int pinNumberOrientation = 0; // degrees rotation from +ve x-axis
+  int pinNameAlignment = 0; // default 0 => bottom left corner at (x,y)
+  int pinNameOrientation = 0;
+  int pinColourIndex = 3;
+  int pinLabelColour = 5;
+  int pinLabelSize = 5;
+  int pinLabelVis = 1;
+  int pinLabelShow = 1;
+  int pinNumberColour = 5;
+  int pinNumberSize = 7;
+  int pinNumberVis = 1;
+  int pinNumberShow = 1;
+  int pinSeqColour = 5;
+  int pinSeqTextSize = 7;
+  int pinSeqVis = 0;
+  int pinSeqShow = 1;
 
   public void SymbolPin()
   {
@@ -94,7 +111,7 @@ public class SymbolPin extends SymbolElement
     super.updateYdimensions(yCoord1);
     pinLength = Integer.parseInt(tokens[5]);
     pinDirection = tokens[6];
-    // we now sort out the orinetation and position
+    // we now sort out the orientation and position
     // of the pin number and pin label, based on the
     // direction of the pin & the pin location,
     // and add some kerning while we are at it
@@ -140,9 +157,8 @@ public class SymbolPin extends SymbolElement
     super.updateYdimensions(yCoord1);
     super.updateXdimensions(xCoord2);
     super.updateYdimensions(yCoord2);
-
+    // the kicadUnit is equivalent to the slot in gschem... useful
     kicadUnit = Integer.parseInt(tokens[9]);
-      
   }
 
   public long localMinXCoord() {
@@ -153,7 +169,7 @@ public class SymbolPin extends SymbolElement
     }
   }
 
-  public long locaclMinYCoord() {
+  public long localMinYCoord() {
     if (yCoord1 < yCoord2) {
       return yCoord1;
     } else {
@@ -162,59 +178,47 @@ public class SymbolPin extends SymbolElement
   }
 
   public String toString(long xOffset, long yOffset) {
-    int colorIndex = 3;
     return ("P "
             + (xCoord1 + xOffset) + " "
             + (yCoord1 + yOffset) + " " 
             + (xCoord2 + xOffset) + " "
             + (yCoord2 + yOffset)  + " "
-            + colorIndex + " "
+            + pinColourIndex + " "
             + pinType + " "
             + activeEnd  // one implies (xCoord1, yCoord1)
             + "\n{\n" 
-            + attributeFieldNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + attributeFieldPinNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n"
-            + attributeFieldLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
+            + attributeFieldPinLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
             + "\n"
-            + attributePinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + attributeFieldPinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
             + "\n}");
   }
 
   public int slot() {
-    return kicadUnit;
+    return kicadUnit; // kicadUnit is equivalent to slot in gschem
   }
 
   public int pinNum() {
     return pinNumber;
   }
 
-  private String attributeFieldLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {
-    int colour = 5;
-    int textSize = 5;
-    int textVisibility = 1;
-    int showNameVal = 1;
-    return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
-            + showNameVal + " " + orientation + " " + alignment + " 1\npinlabel=" + pinLabel);
+  private String attributeFieldPinLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    return SymbolText.toString(X, Y, pinLabelColour, pinLabelSize, pinLabelVis, pinLabelShow, orientation, alignment, numLines, ("pinlabel=" + pinLabel));
   }
-  private String attributeFieldNumber(String pinDesc, long X, long Y, int orientation, int alignment)  {
-    int colour = 5;
-    int textSize = 7;
-    int textVisibility = 1;
-    int showNameVal = 1;
-    return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
-            + showNameVal + " " + orientation + " " + alignment + " 1\npinnumber=" + pinDesc);
+
+  private String attributeFieldPinNumber(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    return SymbolText.toString(X, Y, pinNumberColour, pinNumberSize, pinNumberVis, pinNumberShow, orientation, alignment, numLines, ("pinnumber=" + pinDesc));
   }
-  private String attributePinSeq(String pinDesc, long X, long Y, int orientation, int alignment)  {
-    int colour = 5;
-    int textSize = 7;
-    int textVisibility = 0;
-    int showNameVal = 1;
+
+  private String attributeFieldPinSeq(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
     // we use the class static variable pinSeqTally to keep track
     // of how many rendered pins have been generated
     pinSeqTally++;
-    return ("T " + X + " " + Y + " " + colour + " " + textSize + " " + textVisibility + " "
-            + showNameVal + " " + orientation + " " + alignment + " 1\npinseq=" + pinSeqTally);
+    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, pinNameOrientation, pinNameAlignment, numLines, ("pinseq=" + pinSeqTally));
   }
-
 
 }
