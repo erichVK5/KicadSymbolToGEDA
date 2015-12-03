@@ -21,11 +21,8 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
-
-
 import java.util.Scanner;
 import java.io.*;
-
 
 public class KicadSymbolToGEDA
 {
