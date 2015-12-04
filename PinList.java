@@ -36,6 +36,7 @@ public class PinList {
   int numSlots = 1;
   int kicadSlots = 0;
   int pinsPerSlot = 10; //default value, but resizes automatically if needed
+  int totalPinCount = 0;
 
   public PinList(int slotCount) {
     kicadSlots = slotCount;
@@ -50,6 +51,7 @@ public class PinList {
     //   System.out.println("Added a pin from slot: " + currentSlot );
     slotArrays[currentSlot][pinCounts[currentSlot]] = newPin;
     pinCounts[currentSlot] = pinCounts[currentSlot] + 1;
+    totalPinCount++;
     // we test to see if our pin storage structure is full.
     // If so, we create a new one twice the size, and copy
     // everything over to it
@@ -68,6 +70,7 @@ public class PinList {
 
   public String toString(long xOffset, long yOffset) {
     String output = "";
+    SymbolPin.resetPinSeqTally();
     for (int index = 0; index < pinCounts[0]; index++) {
       output = output + "\n" + slotArrays[0][index].toString(xOffset, yOffset); 
     }

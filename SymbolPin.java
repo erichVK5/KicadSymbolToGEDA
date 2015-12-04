@@ -47,6 +47,8 @@ public class SymbolPin extends SymbolElement
   // of how many pin descriptions have been generated
   // in multislot devices when the symbols is exported
   // in gschem format
+  // hmm, need to re-initiailise it after a symbol has been
+  // generated if batches of symbols being done...
   static int pinSeqTally = 0;
 
   String pinDescriptor = "";
@@ -93,6 +95,10 @@ public class SymbolPin extends SymbolElement
   int pinSeqTextSize = 7;
   int pinSeqVis = 0;
   int pinSeqShow = 1;
+
+  public static void resetPinSeqTally() {
+    pinSeqTally = 0;
+  }
 
   public void SymbolPin()
   {
