@@ -64,6 +64,12 @@ public class SymbolText extends SymbolElement
   {
     output = "#Hmm, the no arg symbol circle constructor didn't do much";
   }
+
+  public static void resetSymbolTextAttributeOffsets() {
+    maxTextX = 0;
+    maxTextY = 0;
+    invisibleAttributeCount = 0;
+  }
   
   public void constructor(String arg)
   {

@@ -216,6 +216,10 @@ public class Symbol
     String output = "";
     //System.out.println("Have identified this many symbol features: " + symFeatureCount);
     // we first generate gschem symbol definitions for non-pin elements and features
+    // before we do this, we need to reset the offsets used for text
+    // invisible attributes by the SymbolText class, in case we
+    // are batch processing lots of symbols
+    SymbolText.resetSymbolTextAttributeOffsets();
     for (int index = 0; index < symFeatureCount; index++) {
       output = output + symbolElements[index].toString(-xTranslate, -yTranslate);
       if (index < (symFeatureCount - 1)) {
