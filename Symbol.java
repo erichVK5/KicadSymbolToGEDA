@@ -137,6 +137,16 @@ public class Symbol
                     textDescriptorCount++;
                     symFeatureCount++;
                   }
+                else if (tokens[0].startsWith("$FPLIST")) {
+                  // for now, we won't bother to use the list of
+                  // footprints associated with the symbol
+                  while (!tokens[0].startsWith("$ENDFPLIST")) {
+                        parseString = symbolDefinition.nextLine();
+                        trimmedString = parseString.trim();
+                        // we tokenize the line
+                        tokens = trimmedString.split(" ");
+                      }
+                  }
                 else if (tokens[0].startsWith("S"))
                   {
                     symbolElements[symFeatureCount] = new SymbolRectangle();

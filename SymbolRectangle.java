@@ -65,6 +65,7 @@ public class SymbolRectangle extends SymbolElement
   public void constructor(String arg)
   {
     rectangleDescriptor = arg;
+    //System.out.println(arg);
     arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
     
