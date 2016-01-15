@@ -15,7 +15,7 @@ In addition to the drawn symbol, pins, pin numbers, pin labels, refdes and devic
 	pintype=
 	footprint=
 
-The footprint currently defaults to footprint=unknown as the footprint option is optional in Kicad libraries, residing in the optional F2 field.
+The footprint attribute defaults to footprint=unknown unless a footprint is specified in the FPLIST section of the library.
 
 Some Kicad libraries use non ASCII characters in device descriptions and pin labels. The utility replaces these with underscores.
 
@@ -35,6 +35,26 @@ Quickstart guide:
 	javac *.java
 
 	java KicadSymbolToGEDA -l someKicadLibrary.lib
+
+Options are:
+
+	 -q QuietMode
+		 Default is not quiet mode, with a simple summary of progress provided
+	 -l kicadlibrary.lib
+		 parses kicad symbols in .lib library files
+	 -a "the Author"
+		 includes "the Author" in symbol attributes
+	 -U "usage licence i.e. GPL3"
+		 includes usage licence in symbol attributes
+	 -D "distribution licence i.e. unlimited"
+		 includes distribution licence in symbol attributes
+	 -F Inserts FOSS GPL3 distribution licence and
+		unrestricted usage licence in symbol attributes
+	 -h HTMLsummaryOutputFile.html
+		 Default is: "HTMLsummary.html"
+	 -v VerboseMode
+		 Default is not verbose
+
 
 Useful links:
 
