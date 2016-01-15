@@ -33,6 +33,9 @@ public class KicadSymbolToGEDA
     boolean quietMode = false;
     boolean defaultHTMLsummary = true;
     boolean usingStdInForModule = false;
+    String useLicenceField = null;
+    String distLicenceField = null;
+    String authorField = null;
 
     // the following are default strings which can be changed to suit the user's needs,
     // particularly if usage is intended via stdin, as these will be the defaults used
@@ -114,6 +117,49 @@ public class KicadSymbolToGEDA
               {
                 verboseMode = true;
                 System.out.println("Verbose mode\n");
+              }
+            else if (args[count].startsWith("-a") && (count < (args.length-1)))
+              {
+                count++;
+                authorField = args[count];
+                if (verboseMode)
+                  {
+                    System.out.println("Using " + args[count] +
+                                       " for author field");
+                  }
+              }
+            else if (args[count].startsWith("-U") && (count < (args.length-1)))
+              {
+                count++;
+                useLicenceField = args[count];
+                if (verboseMode)
+                  {
+                    System.out.println("Using " + args[count] +
+                                       " for usage licence field");
+                  }
+              }
+            else if (args[count].startsWith("-D") && (count < (args.length-1)))
+              {
+                count++;
+                distLicenceField = args[count];
+                if (verboseMode)
+                  {
+                    System.out.println("Using " + args[count] +
+                                       " for distribution licence field");
+                  }
+              }
+            else if (args[count].startsWith("-F"))
+              {
+                distLicenceField =
+                    "GPL 3, see http://www.gnu.org/licenses/gpl-3.0.txt";
+                useLicenceField = "free, no restrictions";
+                if (verboseMode)
+                  {
+                    System.out.println("Using " + distLicenceField +
+                                       " for distribution licence field");
+                    System.out.println("Using " + useLicenceField +
+                                       " for usage licence field");
+                  }
               }
             else if (args[count].startsWith("-q"))
               {
@@ -331,6 +377,24 @@ public class KicadSymbolToGEDA
         // a String variable to contain the symbol data
         String symbolData = "v 20110115 1\n" +
             symbolsInLibrary[counter].generateGEDAsymbol();
+        if (authorField != null) {
+          symbolData = symbolData +
+              SymbolText.attributeString(
+                                         -symbolsInLibrary[counter].xTranslate,
+                                         -symbolsInLibrary[counter].yTranslate, ("author=" + authorField));
+        }
+        if (distLicenceField != null) {
+          symbolData = symbolData +
+              SymbolText.attributeString(
+                                         -symbolsInLibrary[counter].xTranslate,
+                                         -symbolsInLibrary[counter].yTranslate, ("dist-licence=" + distLicenceField));
+        }
+        if (useLicenceField != null) {
+          symbolData = symbolData +
+              SymbolText.attributeString(
+                                         -symbolsInLibrary[counter].xTranslate,
+                                         -symbolsInLibrary[counter].yTranslate, ("use-licence=" + useLicenceField));
+        }
 
         if (verboseMode)
           {
@@ -401,6 +465,13 @@ public class KicadSymbolToGEDA
                        //"\t\t parses legacy & s-file format modules in decimil or mm units\n" +
                        "\t -l kicadlibrary.lib\n" +
                        "\t\t parses kicad symbols in .lib library files\n" +
+                       "\t -a \"theAuthor\"\n" +
+                       "\t\t includes author in symbol attributes\n" +
+                       "\t -U \"usage licence i.e. GPL3\"\n" +
+                       "\t\t includes usage licence in symbol attributes\n" +
+                       "\t -D \"distribution licence i.e. unlimited\"\n" +
+                       "\t\t includes distributionlicence in symbol attributes\n" +
+                       "\t -F Inserts FOSS GPL3 distribution licence and\n\t\tunrestricted usage licence in symbol attributes\n" +
                        "\t -h HTMLsummaryOutputFile.html\n" +
                        "\t\t Default is: \"HTMLsummary.html\"\n" + 
                        "\t -c PrependedElementComments.txt\n" +

@@ -74,7 +74,7 @@ public class SymbolText extends SymbolElement
   public void constructor(String arg)
   {
     arg = arg.replaceAll("^[a-zA-Z0-9]\"-_","_");
-    System.out.println(arg);
+    //    System.out.println(arg);
     textDescriptor = arg;
     // herein lies a most peculiar danger, heretofore unimagined, that
     // the kicadians might perchance elect to have text fields with
