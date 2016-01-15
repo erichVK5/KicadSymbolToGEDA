@@ -58,6 +58,7 @@ public class Symbol
   String reconstructedKicadSymbolAsString = ""; // we'll return this from the toString() 
 
   String symbolName = "";
+  String suggestedFootprint = "unknown";
 
   String referencePrefix = "";
   long pinNameOffset = 0;
@@ -140,6 +141,13 @@ public class Symbol
                 else if (tokens[0].startsWith("$FPLIST")) {
                   // for now, we won't bother to use the list of
                   // footprints associated with the symbol
+                  // just the first entry
+                  parseString = symbolDefinition.nextLine();
+                  trimmedString = parseString.trim();
+                  tokens = trimmedString.split(" ");
+                  if (!tokens[0].startsWith("$ENDFPLIST")) {
+                    suggestedFootprint = tokens[0];
+                  }
                   while (!tokens[0].startsWith("$ENDFPLIST")) {
                         parseString = symbolDefinition.nextLine();
                         trimmedString = parseString.trim();
@@ -218,7 +226,7 @@ public class Symbol
 
   public String generateGEDAsymbolFilename()
   {
-    return symbolName + ".sch";
+    return symbolName + ".sym";
   }
 
   public String generateGEDAsymbol()
@@ -243,7 +251,7 @@ public class Symbol
     // we then set up a default footprint of unknown, since kicad does
     // necessarily specify a footprint, (theoretically, it can in F2 field)
     // TO DO - add checking for footprint field while parsing ? usefulness
-    output = output + SymbolText.attributeString(-xTranslate, -yTranslate, "footprint=unknown");
+    output = output + SymbolText.attributeString(-xTranslate, -yTranslate, ("footprint=" + suggestedFootprint));
     // finally, we put in a comment field to show aliases/equivalent devices
     if (deviceAliases != null) {
       output = output + SymbolText.attributeString(-xTranslate, -yTranslate, deviceAliases);
