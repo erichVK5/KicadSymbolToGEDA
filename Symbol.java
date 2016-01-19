@@ -58,7 +58,7 @@ public class Symbol
   String reconstructedKicadSymbolAsString = ""; // we'll return this from the toString() 
 
   String symbolName = "";
-  String suggestedFootprint = "unknown";
+  String suggestedFootprint = "unknown"; //default is "unknown"
 
   String referencePrefix = "";
   long pinNameOffset = 0;
@@ -229,9 +229,34 @@ public class Symbol
     return symbolName + ".sym";
   }
 
-  public String generateGEDAsymbol()
+
+  public String generateGEDAsymbol() {
+    return generateGEDAsymbol(0); // don't tweak pin spacings
+  }
+
+  public String generateGEDAsymbol(int spacing)
   {
     String output = "";
+    // first, we need to snap thing to the grid if spacing != 0
+    // System.out.println("Spacing passed to symbol: " + spacing);
+    if (spacing != 0) {
+      float temp = 1;
+      if (xTranslate < 0) {
+        xTranslate
+            = (long)Math.floor((xTranslate*1.0)/spacing)*spacing;
+      } else if (xTranslate > 0) {
+        xTranslate
+            = (long)Math.ceil((xTranslate*1.0)/spacing)*spacing;
+      }
+      if (yTranslate < 0) {
+        yTranslate
+            = (long)Math.floor((yTranslate*1.0)/spacing)*spacing;
+      } else if (xTranslate > 0) {
+        yTranslate
+            = (long)Math.ceil((yTranslate*1.0)/spacing)*spacing;
+      }
+    }
+
     //System.out.println("Have identified this many symbol features: " + symFeatureCount);
     // we first generate gschem symbol definitions for non-pin elements and features
     // before we do this, we need to reset the offsets used for text
@@ -247,7 +272,16 @@ public class Symbol
     // we then add symbol definitions for pin elements and features, and
     // get the listOfPins to also generate the associated slotdef, slot,
     // numslots attribute fields
-    output = output + listOfPins.toString(-xTranslate, -yTranslate);
+    if (spacing != 0) {
+      PinList temp = listOfPins.pinsGridAligned(spacing);
+      output = output
+          + temp.toString(-xTranslate, -yTranslate)
+          + "\n"
+          + temp.boundingBox(0,0).toString(-xTranslate, -yTranslate);
+      //      System.out.println("Generated snapped to grid pins, bounding box");
+    } else {
+      output = output + listOfPins.toString(-xTranslate, -yTranslate);
+    }
     // we then set up a default footprint of unknown, since kicad does
     // necessarily specify a footprint, (theoretically, it can in F2 field)
     // TO DO - add checking for footprint field while parsing ? usefulness

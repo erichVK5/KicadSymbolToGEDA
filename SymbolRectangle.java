@@ -57,9 +57,22 @@ public class SymbolRectangle extends SymbolElement
   int fillType = 0;
   long lineThickness = 0;
 
-  public void SymbolRectangle()
+  public SymbolRectangle()
   {
     output = "#Hmm, the no arg symbol rectangle constructor didn't do much";
+  }
+
+  public SymbolRectangle(int x1, int y1, int x2, int y2, int thick, int fill) {
+    xCoordOne = x1;
+    yCoordOne = y1;
+    xCoordTwo = x2;
+    yCoordTwo = y2;
+    super.updateXdimensions(xCoordOne);
+    super.updateYdimensions(yCoordOne);
+    super.updateXdimensions(xCoordTwo);
+    super.updateYdimensions(yCoordTwo);
+    lineThickness = thick;
+    fillType = fill; // 0 is no fill, 1 is solid IIRC
   }
   
   public void constructor(String arg)

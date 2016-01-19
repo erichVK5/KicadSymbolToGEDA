@@ -37,6 +37,8 @@ public class KicadSymbolToGEDA
     String distLicenceField = null;
     String authorField = null;
 
+    int gridSpacing = 0; // default value
+
     // the following are default strings which can be changed to suit the user's needs,
     // particularly if usage is intended via stdin, as these will be the defaults used
     // when generating output files
@@ -113,6 +115,16 @@ public class KicadSymbolToGEDA
                                        " for HTML description of converted modules");
                   }
               }
+            else if (args[count].startsWith("-g") && (count < (args.length-1)))
+              {
+                count++;
+                gridSpacing = Integer.parseInt(args[count]);
+                if (verboseMode)
+                  {
+                    System.out.println("Using " + args[count] +
+                                       " for snap to grid spacing");
+                  }
+              }
             else if (args[count].startsWith("-v"))
               {
                 verboseMode = true;
@@ -175,7 +187,6 @@ public class KicadSymbolToGEDA
       }
 
     // having parsed the command line arguments, we proceed to process the data
-
     // we now come up with a more unique default HTML summary filename if a filename was
     // not specified at the command line
 
@@ -376,7 +387,7 @@ public class KicadSymbolToGEDA
 
         // a String variable to contain the symbol data
         String symbolData = "v 20110115 1\n" +
-            symbolsInLibrary[counter].generateGEDAsymbol();
+            symbolsInLibrary[counter].generateGEDAsymbol(gridSpacing);
         if (authorField != null) {
           symbolData = symbolData +
               SymbolText.attributeString(
@@ -481,6 +492,8 @@ public class KicadSymbolToGEDA
                        "\t\t Default is:   ./Converted/\n" +
                        "\t -s SummaryOfModuleOrModulesForHTML\n" +
                        "\t\t Default inserted in HTML is: \"converted Kicad module\"\n" +
+                       "\t -g 200\n" +
+                       "\t\t try to apply snap to grid spacing to pins, elemnts, of i.e. 200\n" +
                        "\t -v VerboseMode\n" +
                        "\t\t Default is not verbose\n" );
 

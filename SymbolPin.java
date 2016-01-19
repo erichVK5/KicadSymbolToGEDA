@@ -21,6 +21,8 @@
 //    
 //    KicadSymbolToGEDA Copyright (C) 2015 Erich S. Heinzle a1039181@gmail.com
 
+import java.lang.Exception;
+
 /**
 *
 * This class is passed a Kicad Pin descriptor string of the form "X Ni x1 y1 x2 y2 ... xi yi fill"
@@ -47,7 +49,7 @@ public class SymbolPin extends SymbolElement
   // of how many pin descriptions have been generated
   // in multislot devices when the symbols is exported
   // in gschem format
-  // hmm, need to re-initiailise it after a symbol has been
+  // hmm, need to re-initialise it after a symbol has been
   // generated if batches of symbols being done...
   static int pinSeqTally = 0;
 
@@ -66,7 +68,7 @@ public class SymbolPin extends SymbolElement
   long pinNameX = 0;
   long pinNameY = 0;
   long pinLength = 0;
-  String pinDirection = "";
+  String pinDirection = "0"; // default non-sensical value
   int pinType = 0; // 0 = normal, and 1 = bus/unused
   int activeEnd = 0; // 1 = first end, 0 = second end
   int kicadUnit = 0; // equivalent to gschem "slot"
@@ -105,6 +107,18 @@ public class SymbolPin extends SymbolElement
     output = "#Hmm, the no arg symbol pin constructor didn't do much";
   }
   
+  public SymbolPin copy() {
+    SymbolPin copyOf = new SymbolPin();
+    copyOf.constructor(this.pinDescriptor);
+    return copyOf;
+  }
+
+  public SymbolPin copy(SymbolPin orig) {
+    SymbolPin copyOf = new SymbolPin();
+    copyOf.constructor(orig.pinDescriptor);
+    return copyOf;
+  }
+
   public void constructor(String arg)
   {
     pinDescriptor = arg;
@@ -119,13 +133,194 @@ public class SymbolPin extends SymbolElement
     super.updateXdimensions(xCoord1);
     super.updateYdimensions(yCoord1);
     pinLength = Integer.parseInt(tokens[5]);
-    pinDirection = tokens[6];
+    pinDirection = tokens[6].toUpperCase();
+
+    organiseLabelAndPinCoords();
+
+    // the kicadUnit is equivalent to the slot in gschem... useful
+    kicadUnit = Integer.parseInt(tokens[9]);
+
+    kicadEType = tokens[11]; // the electrical type of the pin
+    if (kicadEType.equals("I")) {
+      pinEType = "in";
+    } else if (kicadEType.equals("O")) {
+      pinEType = "out";
+    } else if (kicadEType.equals("T")) {
+      pinEType = "tri";
+    } else if (kicadEType.equals("W") || kicadEType.equals("w")) {
+      pinEType = "pwr";
+    } else if (kicadEType.equals("C")) {
+      pinEType = "oc";
+    } else if (kicadEType.equals("E")) {
+      pinEType = "oe";
+    } else {
+      pinEType = "pas"; // default setting catches bidir, unspec. 
+    } // kicad has no gschem totem pole or clock pin equivalents
+
+  }
+
+  public int pinNumber() {
+    // we assume the kicad library has a valid number field
+    // if not, return default of zero
+    int returnNumber = 0;
+    // System.out.println("The pinNumber method returns:" + pinNumber);
+    try {
+      returnNumber = Integer.parseInt(pinNumber);
+    }
+    catch (Exception e) {
+      // ho hum
+    }
+    // System.out.println("The pinNumber method returns revised:" + pinNumber);
+    return returnNumber;
+  }
+
+  public long localMinXCoord() {
+    if (xCoord1 < xCoord2) {
+      return xCoord1;
+    } else {
+      return xCoord2;
+    }
+  }
+
+  public long localMinYCoord() {
+    if (yCoord1 < yCoord2) {
+      return yCoord1;
+    } else {
+      return yCoord2;
+    }
+  }
+
+  public long currentActiveX() {
+    return xCoord1;
+  }
+
+  public long currentActiveY() {
+    return yCoord1;
+  }
+
+  public long currentInactiveX() {
+    return xCoord2;
+  }
+
+  public long currentInactiveY() {
+    return yCoord2;
+  }
+
+  public void setNewInactiveY(long newY) {
+    long deltaY = newY - yCoord2;
+    yCoord2 = newY;
+    yCoord1 += deltaY;
+    organiseLabelAndPinCoords();
+  }
+
+  public void setNewInactiveX(long newX) {
+    long deltaX = newX - xCoord2;
+    xCoord2 = newX;
+    xCoord1 += deltaX;
+    organiseLabelAndPinCoords();
+  }
+
+  public void setNewActiveY(long newY) {
+    long deltaY = newY - yCoord1;
+    yCoord1 = newY;
+    yCoord2 += deltaY;
+    organiseLabelAndPinCoords();
+  }
+
+  public void setNewActiveX(long newX) {
+    long deltaX = newX - xCoord1;
+    xCoord1 = newX;
+    xCoord2 += deltaX;
+    organiseLabelAndPinCoords();
+  }
+
+
+  public void setNewActiveOrigin(long newX, long newY) {
+    long deltaX = newX - xCoord1;
+    long deltaY = newY - yCoord1;
+    xCoord1 = newX;
+    yCoord1 = newY;
+    xCoord2 += deltaX;
+    yCoord2 += deltaY;
+    organiseLabelAndPinCoords();
+  }
+
+  public void setNewInactiveOrigin(long newX, long newY) {
+    long deltaX = newX - xCoord2;
+    long deltaY = newY - yCoord2;
+    xCoord2 = newX;
+    yCoord2 = newY;
+    xCoord1 += deltaX;
+    yCoord1 += deltaY;
+    organiseLabelAndPinCoords();
+  }
+
+  public String toString() {
+    return pinDescriptor;
+  }
+
+  public String toString(long xOffset, long yOffset) {
+    return ("P "
+            + (xCoord1 + xOffset) + " "
+            + (yCoord1 + yOffset) + " " 
+            + (xCoord2 + xOffset) + " "
+            + (yCoord2 + yOffset)  + " "
+            + pinColourIndex + " "
+            + pinType + " "
+            + activeEnd  // one implies (xCoord1, yCoord1)
+            + "\n{\n" 
+            + attributeFieldPinNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + "\n"
+            + attributeFieldPinLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
+            + "\n"
+            + attributeFieldPinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + "\n"
+            + attributeFieldPinType(pinEType, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
+            + "\n}");
+  }
+
+  public int slot() {
+    return kicadUnit; // kicadUnit is equivalent to slot in gschem
+  }
+
+  public char pinDirection() {
+    return pinDirection.charAt(0);
+  }
+
+  private String attributeFieldPinLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    return SymbolText.toString(X, Y, pinLabelColour, pinLabelSize, pinLabelVis, pinLabelShow, orientation, alignment, numLines, ("pinlabel=" + pinLabel));
+  }
+
+  private String attributeFieldPinNumber(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    return SymbolText.toString(X, Y, pinNumberColour, pinNumberSize, pinNumberVis, pinNumberShow, orientation, alignment, numLines, ("pinnumber=" + pinDesc));
+  }
+
+  private String attributeFieldPinSeq(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    // we use the class static variable pinSeqTally to keep track
+    // of how many rendered pins have been generated
+    pinSeqTally++;
+    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pinseq=" + pinSeqTally));
+  }
+
+  private String attributeFieldPinType(String pinDesc, long X, long Y, int orientation, int alignment)  {
+    int numLines = 1;
+    // we use the same settings for colour, size and visibility as the hidden pin sequence fields
+    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pintype=" + pinDesc));
+  }
+
+  private void organiseLabelAndPinCoords() {
     // we now sort out the orientation and position
     // of the pin number and pin label, based on the
     // direction of the pin & the pin location,
     // and add some kerning while we are at it
     // to prevent the text obscuring adjacent
     // elements/features
+    // importantl, xCoord2, yCoord2, are the non active end
+    // of the pin, and the L, R, U, D indicate the direction
+    // in which the non active end goes.
     if (pinDirection.startsWith("R")) {
       xCoord2 = xCoord1 + pinLength;
       pinNumberX = (xCoord1 + xCoord2)/2;
@@ -166,90 +361,5 @@ public class SymbolPin extends SymbolElement
     super.updateYdimensions(yCoord1);
     super.updateXdimensions(xCoord2);
     super.updateYdimensions(yCoord2);
-    // the kicadUnit is equivalent to the slot in gschem... useful
-    kicadUnit = Integer.parseInt(tokens[9]);
-
-    kicadEType = tokens[11]; // the electrical type of the pin
-    if (kicadEType.equals("I")) {
-      pinEType = "in";
-    } else if (kicadEType.equals("O")) {
-      pinEType = "out";
-    } else if (kicadEType.equals("T")) {
-      pinEType = "tri";
-    } else if (kicadEType.equals("W") || kicadEType.equals("w")) {
-      pinEType = "pwr";
-    } else if (kicadEType.equals("C")) {
-      pinEType = "oc";
-    } else if (kicadEType.equals("E")) {
-      pinEType = "oe";
-    } else {
-      pinEType = "pas"; // default setting catches bidir, unspec. 
-    } // kicad has no gschem totem pole or clock pin equivalents
-
   }
-
-  public long localMinXCoord() {
-    if (xCoord1 < xCoord2) {
-      return xCoord1;
-    } else {
-      return xCoord2;
-    }
-  }
-
-  public long localMinYCoord() {
-    if (yCoord1 < yCoord2) {
-      return yCoord1;
-    } else {
-      return yCoord2;
-    }
-  }
-
-  public String toString(long xOffset, long yOffset) {
-    return ("P "
-            + (xCoord1 + xOffset) + " "
-            + (yCoord1 + yOffset) + " " 
-            + (xCoord2 + xOffset) + " "
-            + (yCoord2 + yOffset)  + " "
-            + pinColourIndex + " "
-            + pinType + " "
-            + activeEnd  // one implies (xCoord1, yCoord1)
-            + "\n{\n" 
-            + attributeFieldPinNumber(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
-            + "\n"
-            + attributeFieldPinLabel(pinName, pinNameX + xOffset, pinNameY + yOffset, pinNameOrientation, pinNameAlignment)
-            + "\n"
-            + attributeFieldPinSeq(pinDesc, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
-            + "\n"
-            + attributeFieldPinType(pinEType, pinNumberX + xOffset, pinNumberY + yOffset, pinNumberOrientation, pinNumberAlignment)
-            + "\n}");
-  }
-
-  public int slot() {
-    return kicadUnit; // kicadUnit is equivalent to slot in gschem
-  }
-
-  private String attributeFieldPinLabel(String pinLabel, long X, long Y, int orientation, int alignment)  {
-    int numLines = 1;
-    return SymbolText.toString(X, Y, pinLabelColour, pinLabelSize, pinLabelVis, pinLabelShow, orientation, alignment, numLines, ("pinlabel=" + pinLabel));
-  }
-
-  private String attributeFieldPinNumber(String pinDesc, long X, long Y, int orientation, int alignment)  {
-    int numLines = 1;
-    return SymbolText.toString(X, Y, pinNumberColour, pinNumberSize, pinNumberVis, pinNumberShow, orientation, alignment, numLines, ("pinnumber=" + pinDesc));
-  }
-
-  private String attributeFieldPinSeq(String pinDesc, long X, long Y, int orientation, int alignment)  {
-    int numLines = 1;
-    // we use the class static variable pinSeqTally to keep track
-    // of how many rendered pins have been generated
-    pinSeqTally++;
-    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pinseq=" + pinSeqTally));
-  }
-
-  private String attributeFieldPinType(String pinDesc, long X, long Y, int orientation, int alignment)  {
-    int numLines = 1;
-    // we use the same settings for colour, size and visibility as the hidden pin sequence fields
-    return SymbolText.toString(X, Y, pinSeqColour, pinSeqTextSize, pinSeqVis, pinSeqShow, orientation, alignment, numLines, ("pintype=" + pinDesc));
-  }
-
 }

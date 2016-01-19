@@ -37,6 +37,18 @@ public class PinList {
   int kicadSlots = 0;
   int pinsPerSlot = 10; //default value, but resizes automatically if needed
   int totalPinCount = 0;
+  int maxPinNumber = 0;
+  int totalPins = 0;
+
+  long boundingBoxXMax = 0;
+  long boundingBoxYMax = 0;
+  long boundingBoxXMin = 0;
+  long boundingBoxYMin = 0;
+
+  int leftPinTally = 0;
+  int downPinTally = 0;
+  int rightPinTally = 0;
+  int upPinTally = 0; 
 
   public PinList(int slotCount) {
     kicadSlots = slotCount;
@@ -52,6 +64,38 @@ public class PinList {
     slotArrays[currentSlot][pinCounts[currentSlot]] = newPin;
     pinCounts[currentSlot] = pinCounts[currentSlot] + 1;
     totalPinCount++;
+    if (newPin.pinDirection() == 'L') {
+      leftPinTally++;
+    } else if (newPin.pinDirection() == 'D') {
+      downPinTally++;
+    } else if (newPin.pinDirection() == 'R') {
+      rightPinTally++;
+    } else if (newPin.pinDirection() == 'U') {
+      upPinTally++;
+    } 
+
+    // now we work towards sorting out the dimensions of the
+    // rectangle needed for the symbol
+    if (totalPinCount == 1) {
+      boundingBoxXMax = newPin.currentInactiveX();
+      boundingBoxYMax = newPin.currentInactiveY();
+      boundingBoxXMin = newPin.currentInactiveX();
+      boundingBoxYMin = newPin.currentInactiveY();
+    } else {
+      if (boundingBoxXMax < newPin.currentInactiveX()) {
+        boundingBoxXMax = newPin.currentInactiveX();
+      }
+      if (boundingBoxYMax < newPin.currentInactiveY()) {
+        boundingBoxYMax = newPin.currentInactiveY();
+      }
+      if (boundingBoxXMin > newPin.currentInactiveX()) {
+        boundingBoxXMin = newPin.currentInactiveX();
+      }
+      if (boundingBoxYMin > newPin.currentInactiveY()) {
+        boundingBoxYMin = newPin.currentInactiveY();
+      }
+    }
+
     // we test to see if our pin storage structure is full.
     // If so, we create a new one twice the size, and copy
     // everything over to it
@@ -66,6 +110,237 @@ public class PinList {
       slotArrays = biggerSlotArrays;
       // System.out.println("I just resized the pin data structure.");
     }
+    if (newPin.pinNumber() > maxPinNumber) {
+      maxPinNumber = newPin.pinNumber();
+    }
+    totalPins++;
+  }
+
+  public PinList pinsGridAligned(int spacing) { // default usu. 200
+    SymbolPin [] ordered = new SymbolPin[totalPins];
+    ordered = this.pinOrderedList();
+    // we reset the pin tallies from the addpin routine
+    leftPinTally = 0;
+    downPinTally = 0;
+    rightPinTally = 0;
+    upPinTally = 0; 
+    // System.out.println("Length of ordered pin list: "
+    //                   + ordered.length);
+    for (int index = 0; index < totalPins; index++) {
+      //System.out.println(ordered[index]);
+      //System.out.println(ordered[index+1]);
+      if (ordered[index].pinDirection() == 'L') {
+        leftPinTally++;
+      } else if (ordered[index].pinDirection() == 'D') {
+        downPinTally++;
+      } else if (ordered[index].pinDirection() == 'R') {
+        rightPinTally++;
+      } else if (ordered[index].pinDirection() == 'U') {
+        upPinTally++;
+      } 
+    }    
+    int overallWidth = 0;
+    if (downPinTally > upPinTally) {
+      overallWidth = (downPinTally + 1) * spacing;
+    } else {
+      overallWidth = (upPinTally + 1) * spacing;
+    }
+    int overallHeight = 0;
+    if (leftPinTally > rightPinTally) {
+      overallHeight = (leftPinTally + 1) * spacing;
+    } else {
+      overallHeight = (rightPinTally + 1) * spacing;
+    }
+    long originalY = 0;
+    long originalX = 0;
+    long currentY = 0;
+    long currentX = 0;
+
+    int RIndex = 0;
+    int LIndex = 0;
+    int DIndex = 0;
+    int UIndex = 0;
+    // now, just to confuse matters, a 'R' pin has its active
+    // end going to the left, and inactive end towards the
+    // right, along the left edge of the symbol.
+    // everything is relative to pin 1 snapped to spacing grid
+    for (int index = 0; index < totalPins; index++) {
+      if (ordered[index].pinDirection() == 'R') {
+        if (RIndex == 0) {
+          currentY
+              = spacing*(ordered[index].currentInactiveY()/spacing);
+          originalY = currentY; // snapped to grid
+          // System.out.println("First R pin current Y: " + originalY);
+          originalX
+              = spacing*(ordered[index].currentInactiveX()/spacing);
+           // snapped to grid
+          ordered[index].setNewInactiveOrigin(originalX, originalY); 
+        } else {
+          currentY -= spacing;
+          ordered[index].setNewInactiveOrigin(originalX, currentY); 
+        }
+        RIndex++;
+      }
+    }
+
+    for (int index = totalPins - 1; index >= 0; index--) {
+      if (ordered[index].pinDirection() == 'L') {
+        // System.out.println("LIndex: " + LIndex);
+        if (LIndex == 0) {
+          currentY = originalY;
+          currentX
+              = spacing*(ordered[index].currentInactiveX()/spacing);
+          // System.out.println("L pins current first Y: " + currentY);
+          if (currentX < (originalX + overallWidth)) {
+            currentX = originalX + overallWidth;
+          } 
+          ordered[index].setNewInactiveOrigin(currentX, currentY); 
+        } else {
+          currentY -= spacing;
+          ordered[index].setNewInactiveOrigin(currentX, currentY);
+        }
+        LIndex++;
+      }
+    }
+
+    for (int index = 0; index < totalPins; index++) {
+    //    for (int index = totalPins - 1; index >= 0; index--) {
+      if (ordered[index].pinDirection() == 'U') {
+        if (UIndex == 0) {
+          currentY
+              = spacing*(ordered[index].currentInactiveY()/spacing);
+          // System.out.println("Up pins initial Y :" + currentY);
+          // System.out.println("Overall height :" + overallHeight);
+          if (currentY > (originalY - overallHeight + spacing)) {
+            currentY = originalY - overallHeight + spacing;
+          }
+          //System.out.println("Up, corrected initial origin Y :"
+          //                   + currentY);
+          currentX
+              = spacing*(ordered[index].currentInactiveX()/spacing);
+          if (currentX != (originalX + spacing)) {
+            // currentX = originalX + overallWidth - spacing;
+            currentX = originalX + spacing;
+          }
+          ordered[index].setNewInactiveOrigin(currentX, currentY); 
+        } else {
+          currentX += spacing;
+          ordered[index].setNewInactiveOrigin(currentX, currentY); 
+        }
+        UIndex++;
+      }
+    }
+
+    for (int index = totalPins - 1; index >= 0; index--) {
+    //    for (int index = 0; index < totalPins; index++) {
+      if (ordered[index].pinDirection() == 'D') {
+        if (DIndex == 0) {
+          currentY
+              = spacing*(ordered[index].currentInactiveY()/spacing);
+          if (currentY < (originalY + spacing)) {
+            currentY = originalY + spacing;
+          } 
+          //System.out.println("First D pin current Y: " + currentY);
+          currentX
+              = spacing*(ordered[index].currentInactiveX()/spacing);
+          if (currentX != (originalX + overallWidth - spacing)) {
+            // currentX = originalX + spacing;
+            currentX = originalX + overallWidth - spacing;
+          } 
+          ordered[index].setNewInactiveOrigin(currentX, currentY); 
+        } else {
+          currentX -= spacing;
+          ordered[index].setNewInactiveOrigin(currentX, currentY);
+        }
+        DIndex++;
+      }
+    }
+
+    PinList gridAlignedPins = new PinList(kicadSlots);
+    for (int index = 0; index < totalPins; index++) {
+      gridAlignedPins.addPin(ordered[index]);
+    }
+
+    gridAlignedPins.calculateBoundingBox(spacing);
+    return gridAlignedPins;
+  }
+
+  public void calculateBoundingBox(int spacing) {
+    // we now make the bounding box bigger along
+    // sides which have no pins
+    if (upPinTally == 0) {
+      boundingBoxYMin = boundingBoxYMin - spacing;      
+    }
+    if (downPinTally == 0) {
+      boundingBoxYMax = boundingBoxYMax + spacing;      
+    }
+    if (leftPinTally == 0) {
+      boundingBoxXMax = boundingBoxXMax + spacing;      
+    }
+    if (rightPinTally == 0) {
+      boundingBoxXMin = boundingBoxXMin - spacing;      
+    }
+  }
+
+
+  public SymbolPin [] pinOrderedList() {
+    SymbolPin [] tempList = new SymbolPin[totalPins];
+    int currentPin = 0;
+    // we create a single array of pins for later sorting
+    for (int index = 0; index < numSlots; index++) {
+      for (int index2 = 0; index2 < pinCounts[index]; index2++) {
+        SymbolPin tempPin = new SymbolPin();
+        tempPin.constructor(slotArrays[index][index2].pinDescriptor);
+        //System.out.println("Constructor text: " +
+        //                   slotArrays[index][index2].pinDescriptor);
+        //System.out.println("and pin is AKA tempPin: " + tempPin);
+        tempList[currentPin] = slotArrays[index][index2].copy();
+        currentPin++;
+        //System.out.println("Adding pin "
+        //                   + currentPin + " to ordered list"); 
+        //System.out.println("and pin is : " + tempList[currentPin-1]);
+        //System.out.println("and pin is AKA tempPin: " + tempPin);
+
+      }
+    }
+    // we create the return array
+    SymbolPin [] returnList = new SymbolPin[totalPins];
+    currentPin = 0;
+    // we populate the return array in pin number order
+    // which might range from 0 to maxPinNumber
+    for (int index = 0; index <= maxPinNumber; index++) {
+      for (int index2 = 0; index2 < totalPins; index2++) {
+        SymbolPin tempPin = tempList[index2];
+        //System.out.println("TempPin during SymbolPin[] ordering: "
+        //                   + tempPin + " , " + tempList[index2]);
+        //System.out.println("TempPin pin Number: " + 
+        //                   tempList[index2].pinNumber);
+        if (tempList[index2].pinNumber() == index) {
+          returnList[currentPin] = tempList[index2].copy();
+          //System.out.println("now readying return array");
+          currentPin++;
+        }
+      } 
+    }
+    return returnList;
+  }
+
+  public SymbolRectangle boundingBox(long xOffset, long yOffset) {
+    int thickness = 0;
+    int fill = 0;
+    //System.out.println("Bounding box coords: " +
+    //                 boundingBoxXMin + 
+    //                 ", " + boundingBoxYMin +
+    //                 ", " + boundingBoxXMax +
+    //                 ", " + boundingBoxYMax);
+    SymbolRectangle temp
+        = new SymbolRectangle((int) (boundingBoxXMin + xOffset),
+                              (int) (boundingBoxYMin + yOffset),
+                              (int) (boundingBoxXMax + xOffset),
+                              (int) (boundingBoxYMax + yOffset),
+                              thickness, fill);
+    //System.out.println("Generated new bounding box");
+    return temp;
   }
 
   public String toString(long xOffset, long yOffset) {
