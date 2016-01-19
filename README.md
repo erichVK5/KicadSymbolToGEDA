@@ -19,6 +19,8 @@ The footprint attribute defaults to footprint=unknown unless a footprint is spec
 
 Some Kicad libraries use non ASCII characters in device descriptions and pin labels. The utility replaces these with underscores.
 
+Kicad does not seem to require grid aligned pins. This utility can attempt to snap pins to a specified grid size, i.e. -g 100 or -g 200, in the commandline, to make net connections easier to perform on the symbol in gschem.
+
 Remaining functionality to be refined includes the HTML summary file and author credit options.
 
 
@@ -44,9 +46,11 @@ Options are:
 		 parses kicad symbols in .lib library files
 	 -a "the Author"
 		 includes "the Author" in symbol attributes
-	 -U "usage licence i.e. GPL3"
+	 -g 200
+		 applies a snap to grid of size, i.e. 200, for pins
+	 -U "usage licence text here, i.e. GPL3"
 		 includes usage licence in symbol attributes
-	 -D "distribution licence i.e. unlimited"
+	 -D "distribution licence text here, i.e. unlimited"
 		 includes distribution licence in symbol attributes
 	 -F Inserts FOSS GPL3 distribution licence and
 		unrestricted usage licence in symbol attributes
