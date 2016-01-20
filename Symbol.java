@@ -70,6 +70,8 @@ public class Symbol
   long xTranslate = 0;
   long yTranslate = 0;
 
+  boolean suppressTranslation = false;
+
   String deviceAliases;
 
   boolean metricSystem = false; //not really needed
@@ -222,7 +224,10 @@ public class Symbol
       }
     }
   }
-
+  
+  public void suppressTranslation(boolean option) {
+    suppressTranslation = option;
+  }
 
   public String generateGEDAsymbolFilename()
   {
@@ -248,8 +253,10 @@ public class Symbol
     } else {
       temp  = listOfPins;
     }
-
-    updateXYTrans(temp);
+;
+    if (!suppressTranslation) {
+      updateXYTrans(temp);
+    }
     System.out.println("Symbol minX: " + xTranslate);
     System.out.println("Symbol minY: " + yTranslate);
 
