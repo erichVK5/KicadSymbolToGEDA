@@ -76,7 +76,6 @@ public class Symbol
 
   public Symbol(String args)
   {
-
     boolean symbolFinished = false;
 
     Scanner symbolDefinition = new Scanner(args);
@@ -119,6 +118,9 @@ public class Symbol
             // now that we know the number of slots, we can create the
             // data structure to hold the pin data
             listOfPins = new PinList(unitCount);
+            //            listOfPins.resetXYExtents();
+            // for batch processing we need to reset
+            // for each new symbol, but not behaving as expected
 
             // we now step through the symbol definition line by line
             while (symbolDefinition.hasNext() && !symbolFinished)
@@ -205,15 +207,25 @@ public class Symbol
                     pinCount++;
                   }
 
-                // we now update the maximum X and Y dimension
-                // extents of the kicad symbol, so that these values can
-                // be used as offsets when the gschem symbol is generated,
-                // so that it displays conveniently in the RUQ of the
-                // X-Y plane in gschem's display window
-                xTranslate = symbolElements[symFeatureCount - 1].minXCoord();
-                yTranslate = symbolElements[symFeatureCount - 1].minYCoord();
-                // System.out.println("Updated xTranslate from new non-pin element: " + xTranslate);
-                // System.out.println("Updated yTranslate from new non-pin element: " + yTranslate);
+                if (symFeatureCount == 1) { // first element
+                  symbolElements[0].resetXYExtents();
+                  xTranslate = symbolElements[0].localMinXCoord();
+                  yTranslate = symbolElements[0].localMinYCoord();
+                } else {
+
+                  // we now update the maximum X and Y dimension
+                  // extents of the kicad symbol, so that these values can
+                  // be used as offsets when the gschem symbol is generated,
+                  // so that it displays conveniently in the RUQ of the
+                  // X-Y plane in gschem's display window
+
+                  xTranslate
+                      = symbolElements[symFeatureCount - 1].minXCoord();
+                  yTranslate
+                      = symbolElements[symFeatureCount - 1].minYCoord();
+                  // System.out.println("Updated xTranslate from new non-pin element: " + xTranslate);
+                  // System.out.println("Updated yTranslate from new non-pin element: " + yTranslate);
+                }
               }  
           }
 
@@ -223,6 +235,20 @@ public class Symbol
     // use by the toString() method
     reconstructedKicadSymbolAsString = args;
   }
+
+  public void updateXYTrans(PinList pins) {
+    xTranslate = pins.minX();
+    yTranslate = pins.minY();
+    for (int index = 0; index < symFeatureCount; index++) {
+      if (xTranslate > symbolElements[index].localMinXCoord()) {
+        xTranslate = symbolElements[index].localMinXCoord();
+      }
+      if (yTranslate > symbolElements[index].localMinYCoord()) {
+        yTranslate = symbolElements[index].localMinYCoord();
+      }
+    }
+  }
+
 
   public String generateGEDAsymbolFilename()
   {
@@ -239,8 +265,21 @@ public class Symbol
     String output = "";
     // first, we need to snap thing to the grid if spacing != 0
     // System.out.println("Spacing passed to symbol: " + spacing);
+    // we then add symbol definitions for pin elements and features, and
+    // get the listOfPins to also generate the associated slotdef, slot,
+    // numslots attribute fields
+    PinList temp = null;
     if (spacing != 0) {
-      float temp = 1;
+      temp = listOfPins.pinsGridAligned(spacing);
+    } else {
+      temp  = listOfPins;
+    }
+
+    updateXYTrans(temp);
+    System.out.println("Symbol minX: " + xTranslate);
+    System.out.println("Symbol minY: " + yTranslate);
+
+    if (spacing != 0) {
       if (xTranslate < 0) {
         xTranslate
             = (long)Math.floor((xTranslate*1.0)/spacing)*spacing;
@@ -269,19 +308,17 @@ public class Symbol
         output = output + "\n";
       }
     }
-    // we then add symbol definitions for pin elements and features, and
-    // get the listOfPins to also generate the associated slotdef, slot,
-    // numslots attribute fields
+
     if (spacing != 0) {
-      PinList temp = listOfPins.pinsGridAligned(spacing);
       output = output
           + temp.toString(-xTranslate, -yTranslate)
           + "\n"
           + temp.boundingBox(0,0).toString(-xTranslate, -yTranslate);
       //      System.out.println("Generated snapped to grid pins, bounding box");
     } else {
-      output = output + listOfPins.toString(-xTranslate, -yTranslate);
+      output = output + temp.toString(-xTranslate, -yTranslate);
     }
+
     // we then set up a default footprint of unknown, since kicad does
     // necessarily specify a footprint, (theoretically, it can in F2 field)
     // TO DO - add checking for footprint field while parsing ? usefulness

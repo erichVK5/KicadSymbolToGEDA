@@ -41,6 +41,13 @@ public class SymbolElement
   {
     output = "#Hmm, the no arg symbol polygon constructor didn't do much";
   }
+
+  public void resetXYExtents() {
+    maxX = 0;
+    minX = 0;
+    maxY = 0;
+    minY = 0;
+  }
   
   public void constructor(String arg)
   {
@@ -61,6 +68,14 @@ public class SymbolElement
 
   public long maxYCoord() {
     return maxY;
+  }
+
+  public long localMinXCoord() {
+    return 0;
+  }
+
+  public long localMinYCoord() {
+    return 0;
   }
 
   public String toString(long xOffset, long yOffset) {

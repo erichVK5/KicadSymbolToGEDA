@@ -45,6 +45,11 @@ public class PinList {
   long boundingBoxXMin = 0;
   long boundingBoxYMin = 0;
 
+  long minX = 0;
+  long minY = 0;
+  long maxX = 0;
+  long maxY = 0;
+
   int leftPinTally = 0;
   int downPinTally = 0;
   int rightPinTally = 0;
@@ -81,6 +86,10 @@ public class PinList {
       boundingBoxYMax = newPin.currentInactiveY();
       boundingBoxXMin = newPin.currentInactiveX();
       boundingBoxYMin = newPin.currentInactiveY();
+      minX = newPin.localMinXCoord();
+      //      maxX = newPin.maxXCoord();
+      minY = newPin.localMinYCoord();
+      //maxY = newPin.maxYCoord();
     } else {
       if (boundingBoxXMax < newPin.currentInactiveX()) {
         boundingBoxXMax = newPin.currentInactiveX();
@@ -94,6 +103,12 @@ public class PinList {
       if (boundingBoxYMin > newPin.currentInactiveY()) {
         boundingBoxYMin = newPin.currentInactiveY();
       }
+      if (minX > newPin.localMinXCoord()) {
+        minX = newPin.localMinXCoord();
+      };
+      if (minY > newPin.localMinYCoord()) {
+        minY = newPin.localMinYCoord();
+      };
     }
 
     // we test to see if our pin storage structure is full.
@@ -257,10 +272,12 @@ public class PinList {
     }
 
     PinList gridAlignedPins = new PinList(kicadSlots);
+    //    gridAlignedPins.resetXYExtents();
+        // now need to recalculate bounds while
+        // adding transmogrified pins to new pin list
     for (int index = 0; index < totalPins; index++) {
       gridAlignedPins.addPin(ordered[index]);
     }
-
     gridAlignedPins.calculateBoundingBox(spacing);
     return gridAlignedPins;
   }
@@ -269,7 +286,10 @@ public class PinList {
     // we now make the bounding box bigger along
     // sides which have no pins
     if (upPinTally == 0) {
-      boundingBoxYMin = boundingBoxYMin - spacing;      
+      boundingBoxYMin = boundingBoxYMin - spacing;
+      if (boundingBoxYMin < minY) {
+        minY = boundingBoxYMin;
+      }
     }
     if (downPinTally == 0) {
       boundingBoxYMax = boundingBoxYMax + spacing;      
@@ -278,7 +298,10 @@ public class PinList {
       boundingBoxXMax = boundingBoxXMax + spacing;      
     }
     if (rightPinTally == 0) {
-      boundingBoxXMin = boundingBoxXMin - spacing;      
+      boundingBoxXMin = boundingBoxXMin - spacing;
+      if (boundingBoxXMin < minX) {
+        minX = boundingBoxXMin;
+      }
     }
   }
 
@@ -380,4 +403,12 @@ public class PinList {
     return summary;
   }
   
+  public long minX() {
+    return minX;
+  }
+
+  public long minY() {
+    return minY;
+  }
+
 }
