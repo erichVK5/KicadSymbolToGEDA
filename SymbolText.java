@@ -66,8 +66,13 @@ public class SymbolText extends SymbolElement
   }
 
   public static void resetSymbolTextAttributeOffsets() {
-    maxTextX = 0;
-    maxTextY = 0;
+    resetSymbolTextAttributeOffsets(0,0);
+  }
+
+
+  public static void resetSymbolTextAttributeOffsets(long newX, long newY) {
+    maxTextX = newX;
+    maxTextY = newY;
     invisibleAttributeCount = 0;
   }
   

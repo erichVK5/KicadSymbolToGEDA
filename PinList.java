@@ -87,9 +87,9 @@ public class PinList {
       boundingBoxXMin = newPin.currentInactiveX();
       boundingBoxYMin = newPin.currentInactiveY();
       minX = newPin.localMinXCoord();
-      //      maxX = newPin.maxXCoord();
+      maxX = newPin.maxXCoord();
       minY = newPin.localMinYCoord();
-      //maxY = newPin.maxYCoord();
+      maxY = newPin.maxYCoord();
     } else {
       if (boundingBoxXMax < newPin.currentInactiveX()) {
         boundingBoxXMax = newPin.currentInactiveX();
@@ -109,6 +109,13 @@ public class PinList {
       if (minY > newPin.localMinYCoord()) {
         minY = newPin.localMinYCoord();
       };
+      if (maxX < newPin.localMaxXCoord()) {
+        maxX = newPin.localMinXCoord();
+      };
+      if (minY < newPin.localMaxYCoord()) {
+        maxY = newPin.localMinYCoord();
+      };
+
     }
 
     // we test to see if our pin storage structure is full.
@@ -410,5 +417,13 @@ public class PinList {
   public long minY() {
     return minY;
   }
+
+  public long maxX() {
+    return maxX;
+  } 
+
+  public long maxY() {
+    return maxY;
+  } 
 
 }

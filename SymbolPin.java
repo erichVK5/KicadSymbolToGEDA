@@ -190,6 +190,22 @@ public class SymbolPin extends SymbolElement
     }
   }
 
+  public long localMaxXCoord() {
+    if (xCoord1 < xCoord2) {
+      return xCoord2;
+    } else {
+      return xCoord1;
+    }
+  }
+
+  public long localMaxYCoord() {
+    if (yCoord1 < yCoord2) {
+      return yCoord2;
+    } else {
+      return yCoord1;
+    }
+  }
+
   public long currentActiveX() {
     return xCoord1;
   }

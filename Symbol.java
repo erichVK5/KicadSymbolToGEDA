@@ -196,36 +196,10 @@ public class Symbol
                   {  // we have identified a pin definition in the symbol
                     SymbolPin newPin = new SymbolPin();
                     newPin.constructor(trimmedString);
-                    // we check for the minimum x and y extents of the pins
-                    // to sort out translation of the symbol as a whole
-                    // before adding the pin to our list of pins
-                    xTranslate = newPin.minXCoord();
-                    yTranslate = newPin.minYCoord();
-                    //System.out.println("Updated xTranslate from new pin: " + xTranslate);
-                    //System.out.println("Updated yTranslate from new pin: " + yTranslate);
                     listOfPins.addPin(newPin);
                     pinCount++;
                   }
 
-                if (symFeatureCount == 1) { // first element
-                  symbolElements[0].resetXYExtents();
-                  xTranslate = symbolElements[0].localMinXCoord();
-                  yTranslate = symbolElements[0].localMinYCoord();
-                } else {
-
-                  // we now update the maximum X and Y dimension
-                  // extents of the kicad symbol, so that these values can
-                  // be used as offsets when the gschem symbol is generated,
-                  // so that it displays conveniently in the RUQ of the
-                  // X-Y plane in gschem's display window
-
-                  xTranslate
-                      = symbolElements[symFeatureCount - 1].minXCoord();
-                  yTranslate
-                      = symbolElements[symFeatureCount - 1].minYCoord();
-                  // System.out.println("Updated xTranslate from new non-pin element: " + xTranslate);
-                  // System.out.println("Updated yTranslate from new non-pin element: " + yTranslate);
-                }
               }  
           }
 
@@ -279,7 +253,7 @@ public class Symbol
     System.out.println("Symbol minX: " + xTranslate);
     System.out.println("Symbol minY: " + yTranslate);
 
-    if (spacing != 0) {
+    if (spacing != 0) { // to do - snap to grid routine.
       if (xTranslate < 0) {
         xTranslate
             = (long)Math.floor((xTranslate*1.0)/spacing)*spacing;
@@ -319,9 +293,8 @@ public class Symbol
       output = output + temp.toString(-xTranslate, -yTranslate);
     }
 
-    // we then set up a default footprint of unknown, since kicad does
-    // necessarily specify a footprint, (theoretically, it can in F2 field)
-    // TO DO - add checking for footprint field while parsing ? usefulness
+    // have default footprint of unknown, since kicad does
+    // necessarily specify a footprint
     output = output + SymbolText.attributeString(-xTranslate, -yTranslate, ("footprint=" + suggestedFootprint));
     // finally, we put in a comment field to show aliases/equivalent devices
     if (deviceAliases != null) {
