@@ -62,6 +62,9 @@ public class SymbolPolyline extends SymbolElement
   public void constructor(String arg)
   {
     polylineDescriptor = arg;
+    arg = arg.replaceAll("    "," ");
+    arg = arg.replaceAll("   "," ");
+    // it seems some ulp converted eagle files have a lot of spaces
     arg = arg.replaceAll("  "," ");
     String[] tokens = arg.split(" ");
     

@@ -1,0 +1,3 @@
+author=DangerousPrototypes
+dist-licence=Creative Commons 3.0 BY-SA
+use-licence=CC-3.0-BY-SA

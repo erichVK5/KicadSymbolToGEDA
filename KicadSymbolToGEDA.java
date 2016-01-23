@@ -33,6 +33,7 @@ public class KicadSymbolToGEDA
     boolean quietMode = false;
     boolean defaultHTMLsummary = true;
     boolean usingStdInForModule = false;
+    boolean useDefaultAppendedAttributes = true;
     String useLicenceField = null;
     String distLicenceField = null;
     String authorField = null;
@@ -48,6 +49,9 @@ public class KicadSymbolToGEDA
     String convertedKicadModulePath = "Converted/";
     String htmlSummaryPathToConvertedModule = "kicad/symbols/";
     String tempStringArg = "";
+    String appendedAttributesFileName = "";
+    String defaultAppendedAttributesFileName =
+        "AuthorCredits/DefaultSymbolAppendedAttributes.txt";
 
     // first, we parse the command line arguments passed to the utility when started
 
@@ -93,6 +97,17 @@ public class KicadSymbolToGEDA
                     System.out.println("Using " + args[count] +
                                        " as HTML summary file");
                     defaultHTMLsummary = false;
+                  }
+              }
+            else if (args[count].startsWith("-c") && (count < (args.length-1)))
+              {
+                useDefaultAppendedAttributes = false;
+                count++;
+                appendedAttributesFileName = args[count];
+                if (!quietMode)
+                  {
+                    System.out.println("Using " + args[count] +
+                                       " for appended element attributes, i.e. author, vendor");
                   }
               }
             else if (args[count].startsWith("-d") && (count < (args.length-1)))
@@ -220,8 +235,20 @@ public class KicadSymbolToGEDA
       {
         kicadLibraryFile = new Scanner(System.in);
       }
-
-
+    
+    if (useDefaultAppendedAttributes)
+      {
+        appendedAttributesFileName = defaultAppendedAttributesFileName;
+      }
+    
+    // we now look for the appended author and vendor attributes file
+    File file2 = new File(appendedAttributesFileName);
+    if (!file2.exists())
+      {
+        System.out.println("Hmm, an appended attributes file "
+                           + appendedAttributesFileName + " was not found in the AuthorCredits directory...");
+      }
+    
     // we get rid of the "kicad_libraries/" at the front of the converted module filename
     if (kicadSymbolLibName.startsWith("kicad_libraries"))
       {
@@ -366,7 +393,7 @@ public class KicadSymbolToGEDA
             System.out.println("Footprint object array index: " + counter);
           }
 
-        // we generate a string containing the GEDA footprint filename
+        // we generate a string containing the GEDA element filename
         String outputFileName = symbolsInLibrary[counter].generateGEDAsymbolFilename();
 
         // we then append a listing for this particular footprint
@@ -406,6 +433,22 @@ public class KicadSymbolToGEDA
                                          -symbolsInLibrary[counter].xTranslate,
                                          -symbolsInLibrary[counter].yTranslate, ("use-licence=" + useLicenceField));
         }
+        if (!useDefaultAppendedAttributes && file2.exists()) {
+          Scanner appendedAttributes = new Scanner(file2);
+          while (appendedAttributes.hasNext())
+            {
+              symbolData = symbolData +
+                  SymbolText.attributeString(
+                                         -symbolsInLibrary[counter].xTranslate,
+                                         -symbolsInLibrary[counter].yTranslate, (appendedAttributes.nextLine()));
+            }
+          appendedAttributes.close();
+        }
+        // now we add source = kicad.mod name
+        symbolData = symbolData +
+            SymbolText.attributeString(
+                                       -symbolsInLibrary[counter].xTranslate,
+                                       -symbolsInLibrary[counter].yTranslate, ("source=" + kicadSymbolLibName));
 
         if (verboseMode)
           {
@@ -485,9 +528,9 @@ public class KicadSymbolToGEDA
                        "\t -F Inserts FOSS GPL3 distribution licence and\n\t\tunrestricted usage licence in symbol attributes\n" +
                        "\t -h HTMLsummaryOutputFile.html\n" +
                        "\t\t Default is: \"HTMLsummary.html\"\n" + 
-                       "\t -c PrependedElementComments.txt\n" +
+                       "\t -c AppendedElementAttributesFile.txt\n" +
                        "\t\t Default is:" +
-                       "   ./AuthorCredits/DefaultPrependedCommentsFile.txt\n" +
+                       "   ./AuthorCredits/DefaultSymbolAppendedAttributes.txt\n" +
                        "\t -d DestinationdirForConvertedModules\n" +
                        "\t\t Default is:   ./Converted/\n" +
                        "\t -s SummaryOfModuleOrModulesForHTML\n" +

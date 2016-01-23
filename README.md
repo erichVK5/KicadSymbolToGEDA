@@ -21,7 +21,12 @@ Some Kicad libraries use non ASCII characters in device descriptions and pin lab
 
 Kicad does not seem to require grid aligned pins. This utility can attempt to snap pins to a specified grid size, i.e. -g 100 or -g 200, in the commandline, to make net connections easier to perform on the symbol in gschem.
 
-Remaining functionality to be refined includes the HTML summary file and author credit options.
+Remaining functionality to be refined includes the HTML summary file.
+
+Author and licence credit attributes can be placed in a file and added to the AuthorCredits directory and specified at the command line during invocation of the utility.
+
+For a library, i.e. kicadExample.lib, the symbol now has a source attribute appended, i.e.
+	source=kicadExample.lib
 
 
 Quickstart guide:
@@ -46,6 +51,8 @@ Options are:
 		 parses kicad symbols in .lib library files
 	 -a "the Author"
 		 includes "the Author" in symbol attributes
+	 -c AppendedElementAttributesFile.txt
+		 Default is: ./AuthorCredits/DefaultSymbolAppendedAttributes.txt
 	 -g 200
 		 applies a snap to grid of size, i.e. 200, for pins
 	 -U "usage licence text here, i.e. GPL3"
